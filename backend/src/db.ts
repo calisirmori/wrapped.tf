@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 
 dotenv.config();
 
@@ -9,6 +10,9 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
+    ssl: {
+        ca: fs.readFileSync("./ca-certificate.crt")
+    },
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
@@ -215,3 +219,4 @@ export const ensureUserExists = async (steamID64: string) => {
         throw error;
     }
 };
+
