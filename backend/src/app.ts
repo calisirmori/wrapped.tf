@@ -77,12 +77,12 @@ app.get('/api/profile/:id64', async (req, res) => {
         collectedId64s.add(id64);
 
         // Extract id64s from the queries
-        teammates.rows.forEach((row: any) => collectedId64s.add(row.teamate_id64));
+        teammates.rows.forEach((row: any) => collectedId64s.add(row.teammate_id64));
         enemies.rows.forEach((row: any) => collectedId64s.add(row.enemy_id64));
         losingEnemies.rows.forEach((row: any) => collectedId64s.add(row.enemy_id64));
-        losingTeammates.rows.forEach((row: any) => collectedId64s.add(row.teamate_id64));
+        losingTeammates.rows.forEach((row: any) => collectedId64s.add(row.teammate_id64));
         winningEnemies.rows.forEach((row: any) => collectedId64s.add(row.enemy_id64));
-        winningTeammates.rows.forEach((row: any) => collectedId64s.add(row.teamate_id64));
+        winningTeammates.rows.forEach((row: any) => collectedId64s.add(row.teammate_id64));
 
         // Convert Set to Array
         const id64Array = Array.from(collectedId64s);
