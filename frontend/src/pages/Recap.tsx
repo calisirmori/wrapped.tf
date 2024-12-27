@@ -27,7 +27,7 @@ const Recap: React.FC = () => {
     }
   };
 
-  const classes = {
+  const classes: Record<string, string> = {
     scout: "Scout",
     soldier: "Soldier",
     pyro: "Pyro",
