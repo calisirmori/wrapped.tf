@@ -75,35 +75,87 @@ const Recap: React.FC = () => {
 
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
-      {/* Global Stats */}
-      <div
-        className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-100 p-4"
-        data-index="0"
-      >
-        <h1 className="text-3xl font-bold mb-4">
-          Hey {id64 && profileData?.steamInfo[id64]?.name}!
-        </h1>
-        <p className="text-lg text-gray-600 text-center">
-          Before we tell you about your 2024 recap lets look at some global
-          stats.
-        </p>
-        <p className="text-lg text-gray-600 text-center">
-          You are one of <strong>20,960</strong> players this year
-        </p>
-        <p className="text-lg text-gray-600 text-center">
-          There was total of 2,489,473 matches this year
-        </p>
-        <p className="text-lg text-gray-600 text-center">
-          That made up total playtime of 3,275,888,886 seconds of gameplay, That
-          is around 104 years of gameplay! There was 36,225,975 kills and
-          36,647,001 death (that makes 421,026 suicides!)
-        </p>
+
+      {/* Global Info */}
+      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-300 md:p-8 max-md:p-3 relative">
+        {/* Character/Image */}
+        <div className=" text-center mb-4 md:hidden">
+        <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
+              {id64 && profileData?.steamInfo[id64]?.name}!
+            </h1>
+            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
+          <div className="w-32 h-max rounded-lg flex items-center justify-center mb-2">
+          </div>
+        </div>
+        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-4/6 max-md:w-full">
+          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Unique Players</div>
+                <div className="stat-value max-md:text-base my-1">20,960</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">For 15 year old game that is not too bad at all!</div>
+              </div>
+            </div>
+
+            <div className="stats shadow rounded-md ">
+              <div className="stat max-md:p-3 my-1">
+                <div className="stat-title max-md:text-xs">Matches Played</div>
+                <div className="stat-value max-md:text-base my-1">218,947</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 600 matches everyday!</div>
+              </div>
+            </div>
+
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Playtime</div>
+                <div className="stat-value max-md:text-base my-1">909,969 <span>hrs</span></div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 104 years of playtime!</div>
+              </div>
+            </div>
+          </div>
+          <div className=" text-center max-md:hidden mx-6">
+            <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
+              {id64 && profileData?.steamInfo[id64]?.name}!
+            </h1>
+            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
+            <div className="w-[26rem] h-max rounded-lg flex items-center justify-center mb-2">
+              <img
+                src="/earth.png"
+                alt="Character"
+                className="h-full w-auto object-contain rounded-full"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Kills</div>
+                <div className="stat-value max-md:text-base my-1">36,225,975</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">Now thats a lot of damage!</div>
+              </div>
+            </div>
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Self Eliminations</div>
+                <div className="stat-value max-md:text-base my-1">421,026</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is way too many kill-binds!</div>
+              </div>
+            </div>
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Heals Given</div>
+                <div className="stat-value max-md:text-base my-1">19.1 Billion</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">What would we do without our medics?!</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* General Info Section */}
       <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200 md:p-8 max-md:p-3 relative">
         {/* Character/Image */}
-        <div className=" text-center mb-4 md:hidden">
+        <div className=" text-center mb-4 lg:hidden">
           <div className="w-32 h-max rounded-lg flex items-center justify-center mb-2">
             <img
               src={`https://avatars.fastly.steamstatic.com/${
@@ -117,7 +169,7 @@ const Recap: React.FC = () => {
             {id64 && profileData?.steamInfo[id64]?.name}
           </h1>
         </div>
-        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-1/2 max-md:w-full">
+        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-4/6 max-md:w-full">
           <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
             <div className="stats shadow rounded-md">
               <div className="stat max-md:p-3">
@@ -166,7 +218,7 @@ const Recap: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className=" text-center max-md:hidden">
+          <div className=" text-center max-lg:hidden">
             <div className="w-64 h-max rounded-lg flex items-center justify-center mb-2">
               <img
                 src={`https://avatars.fastly.steamstatic.com/${
