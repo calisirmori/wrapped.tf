@@ -78,7 +78,7 @@ const Recap: React.FC = () => {
     }
   }, [id64]);
 
-  const formatNumber = (num) => {
+  const formatNumber = (num: any) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + "k";
     }
@@ -87,7 +87,7 @@ const Recap: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-base-200">
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
         <span className="loading loading-spinner loading-sm"></span>
       </div>
     );
@@ -95,14 +95,16 @@ const Recap: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-base-200">
-        <div className="text-red-600 text-lg">{error}</div>
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="text-error text-4xl font-londrina">{error}</div>
       </div>
     );
   }
 
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
+      
+      {/* Overview */}
       <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
         <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
@@ -122,7 +124,6 @@ const Recap: React.FC = () => {
                     alt="Character"
                     className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl shadow-inner"
                   />
-                  <div className="text-center text-warmscale-6 dark:text-lightscale-2 text-lg">{id64 && profileData?.steamInfo[id64]?.name}</div>
                 </div>
               </div>
               <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
@@ -138,7 +139,7 @@ const Recap: React.FC = () => {
                 <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">WIN%</div>
               </div>
               <div className="flex md:flex-col justify-center items-center font-black select-none border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
-                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{profileData?.general[0].matches_played ? formatNumber(profileData.general[0].matches_played) : "0"}</div>
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
                 <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">KDA</div>
               </div>
             </div>
@@ -184,9 +185,49 @@ const Recap: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg"></div>
-            
+            <div className="w-full p-2 h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div className="grid xl:grid-rows-2 max-xl:grid-rows-1 max-xl:grid-cols-5 h-full w-full items-center">
+                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6 max-md:mt-5 md:gap-2 max-xl:col-span-2">
+                <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
+                  {/* TOP MAP Title */}
+                  <div className="text-warmscale-1 dark:text-lightscale-6 font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">
+                    TOP CLASS
+                  </div>
+                  <div className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveMaps[1]?.map_name?.toUpperCase() || "MAP NAME"}</div>
+                  {/* Dynamic Class Name */}
+                    <div
+                    className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none max-md:hidden "
+                    style={{
+                      fontSize: `min(calc(20vw / ${profileData?.topFiveClasses[0].class_name.length || 1}), 4rem)`, // Adjust size dynamically based on text length
+                      width: "100%", // Stretches to fill available width
+                      textAlign: "center", // Ensures text remains centered
+                    }}
+                    >
+                      {profileData?.topFiveClasses[0].class_name?.toUpperCase() || "MAP NAME"}
+                    </div>
+                  </div>
+                  <div className="md:p-1 flex justify-center items-center max-xl:order-1 w-full h-full max-md:pr-2">
+                    <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full max-h-[14vh] object-cover" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 max-xl:col-span-3">
+                  <div className="flex flex-col justify-center items-center">
+                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
+                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm text-lightscale-6 dark:text-lightscale-8">hrs</span></div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
+                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].wins / profileData?.topFiveClasses[0].matches_played * 100).toFixed(0)}%</div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
+                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{profileData?.topFiveClasses[0].matches_played}</div>
+                  </div>
+                </div>
+              </div>
+            </div>            
           </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
         </div>
       </div>
 

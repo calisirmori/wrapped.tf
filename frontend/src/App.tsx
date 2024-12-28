@@ -9,9 +9,9 @@ const App: React.FC = () => {
     <Router>
       <div className="min-h-screen text-base-content relative">
         {/* Navbar */}
-        <div className="navbar absolute top-0 left-0 w-full bg-opacity-50 px-4 z-50">
+        <div className="navbar absolute text-warmscale-5 dark:text-lightscale-3 top-0 left-0 w-full bg-opacity-50 px-5 z-50 ">
           <div className="flex-1">
-            <a className="btn btn-ghost normal-case text-xl">wrapped.tf</a>
+            <a href="/" className="font-semibold text-xl max-md:text-base hover:text-white dark:hover:text-tf-orange hover:cursor-pointer">wrapped.tf</a>
           </div>
           <div className="flex-none mr-3">
             <ThemeToggle />

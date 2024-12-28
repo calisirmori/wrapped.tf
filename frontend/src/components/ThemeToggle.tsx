@@ -30,7 +30,7 @@ const ThemeToggle: React.FC = () => {
 
       {/* Sun Icon */}
       <svg
-        className="swap-off h-5 w-5 fill-current"
+        className="swap-off h-5 w-5 fill-current max-md:h-4 max-md:w-4"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
       >
@@ -39,7 +39,7 @@ const ThemeToggle: React.FC = () => {
 
       {/* Moon Icon */}
       <svg
-        className="swap-on h-5 w-5 fill-current"
+        className="swap-on h-5 w-5 max-md:h-4 max-md:w-4 fill-current"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
       >
