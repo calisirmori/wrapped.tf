@@ -2,11 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
+.dynamic-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+}
+
+.dynamic-number {
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+  width: 100%; /* Ensure it spans the parent's width */
+  overflow: hidden;
+  white-space: nowrap; /* Prevent wrapping */
+  font-size: calc(10ch / var(--char-count, 1)); /* Dynamically adjust font size */
+  transition: font-size 0.2s ease; /* Smooth resizing */
+}
+
+.static-text {
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+  width: 100%;
+  overflow: hidden;
+  font-size: 1rem; /* Static size */
+}

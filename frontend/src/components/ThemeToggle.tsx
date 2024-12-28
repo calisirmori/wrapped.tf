@@ -10,6 +10,8 @@ const ThemeToggle: React.FC = () => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
+    document.documentElement.classList.remove(theme);
+    document.documentElement.classList.add(newTheme);
   };
 
   // Set the initial theme on component mount

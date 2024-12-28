@@ -3,14 +3,20 @@ import * as cors from 'cors';
 import { query } from './db';
 import mainParser from './routes/parserRoute';
 import logProcessingRoute from './routes/logProcessingRoute';
+import profileCardRouter from "./routes/profileCardRoute";
+import * as path from "path";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/static", express.static(path.join(__dirname, "public")));
 
 //currently not parsing
 //app.use('/api', mainParser);
 //app.use('/api/process', logProcessingRoute); 
+
+// Register the profile card route
+app.use("/api", profileCardRouter);
 
 // Route to get profile data
 app.get('/api/profile/:id64', async (req, res) => {
