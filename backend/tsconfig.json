@@ -4,7 +4,8 @@
       "rootDir": "./src",
       "module": "commonjs",
       "target": "ESNext",
+      "typeRoots": ["./node_modules/@types", "./src/@types"],
       "strict": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts", "src/@types/**/*.d.ts"]
 }
