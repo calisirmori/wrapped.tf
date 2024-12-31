@@ -19,11 +19,11 @@ const FRONTEND_PROD_URL = "https://wrapped.tf";
 const IS_PROD = process.env.NODE_ENV === "production";
 
 const STEAM_REALM = IS_PROD
-  ? "https://wrapped.tf"
-  : "http://localhost:5000";
+  ? "https://api.wrapped.tf"
+  : "http://localhost:5173";
 
 const STEAM_RETURN_URL = IS_PROD
-  ? "https://wrapped.tf/auth/steam/return"
+  ? "https://api.wrapped.tf/auth/steam/return"
   : "http://localhost:5000/auth/steam/return";
 
 const FRONTEND_URL = IS_PROD ? FRONTEND_PROD_URL : FRONTEND_DEV_URL;
@@ -101,13 +101,8 @@ app.get("/auth/steam", passport.authenticate("steam"));
 // Steam login callback
 app.get(
   "/auth/steam/return",
-  passport.authenticate("steam", {
-    failureRedirect: FRONTEND_URL, // on failure, just go home
-  }),
-  (req, res) => {
-    // on success, redirect to the frontend
-    res.redirect(FRONTEND_URL);
-  }
+  passport.authenticate("steam", { failureRedirect: "/" }),
+  (req, res) => {res.redirect("/");}
 );
 
 // Logout
