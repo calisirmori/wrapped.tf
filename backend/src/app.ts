@@ -53,19 +53,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      // 1. Use the parent domain (with leading dot) so subdomains share the cookie
-      domain: ".wrapped.tf",
-
-      // 2. Must set `secure: true` if using HTTPS in production
-      secure: process.env.NODE_ENV === "production",
-
-      // 3. For cross-domain usage (subdomain <-> root domain),
-      //    you typically need sameSite = "none"
-      //    if the subdomain differs from the main domain.
-      //    If you want stricter security, you can try "lax", but "none" is
-      //    often required for cross-subdomain usage with cookies.
-      sameSite: "none",
-
+      secure: process.env.NODE_ENV === "production", // true for HTTPS
+      sameSite: "none", // Required for cross-domain cookies
+      domain: ".wrapped.tf", // Enables cookies across subdomains
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
   })
@@ -300,6 +290,20 @@ app.get("/api/profile/:id64", async (req, res) => {
     console.error("Error fetching profile data:", error);
     res.status(500).json({ error: "Failed to fetch profile data" });
   }
+});
+
+app.get("/debug/session", (req, res) => {
+  res.json({ session: req.session });
+});
+
+app.get("/set-test-cookie", (req, res) => {
+  res.cookie("testCookie", "testValue", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    domain: ".wrapped.tf",
+  });
+  res.send("Cookie set!");
 });
 
 app.listen(5000, () => console.log("Server running on port 5000"));
