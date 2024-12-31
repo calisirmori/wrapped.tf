@@ -2,8 +2,7 @@ import React from "react";
 
 const SteamLogin: React.FC = () => {
   const handleLogin = () => {
-    // Redirect the user to the Steam login endpoint
-    window.location.href = "/api/auth/steam";
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/steam`;
   };
 
   return (
