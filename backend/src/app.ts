@@ -157,6 +157,10 @@ app.get("/api/auth/logout", (req, res) => {
 // Register the profile card route
 app.use("/api", profileCardRouter);
 
+app.get("/api/test", (req, res) => {
+    res.json({ message: "Hello from /api/test endpoint!" });
+});
+
 // Route to get profile data
 app.get("/api/profile/:id64", async (req, res) => {
   const id64 = req.params.id64;

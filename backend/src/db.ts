@@ -16,8 +16,6 @@ const pool = new Pool({
     },
 });
 
-console.log(process.env.CA_CERT)
-
 export const query = (text: string, params?: any[]) => pool.query(text, params);
 
 
