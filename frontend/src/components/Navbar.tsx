@@ -11,27 +11,24 @@ interface User {
 const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
-  console.log(`${import.meta.env.VITE_API_URL}/auth/user`)
-
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        // Use VITE_API_URL + /auth/user
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/user`, {
-          credentials: "include", // include cookies
-        });
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-        setUser(null);
+      const rawCookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("userid="))
+        ?.split("=")[1];
+  
+      if (rawCookie) {
+        // Decode the URL-encoded string
+        const decodedCookie = decodeURIComponent(rawCookie);
+  
+        // Parse the JSON
+        const user = JSON.parse(decodedCookie.substring(2)); // Remove the 'j:' prefix
+  
+        setUser(user); // Set user in state
       }
     };
-
+  
     fetchUser();
   }, []);
 

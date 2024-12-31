@@ -67,7 +67,6 @@ app.use(passport.session());
 
 // Serialize/deserialize
 passport.serializeUser((user: Express.User, done) => {
-    console.log("serialize:", user)
   done(null, user);
 });
 
@@ -90,18 +89,10 @@ passport.use(
         displayName: profile.displayName,
         avatar: profile.photos?.[2]?.value || "",
       };
-      console.log("Steam Strategy processed user:", user); 
       done(null, user);
     }
   )
 );
-
-app.use((req, res, next) => {
-    if (req.session) {
-      console.log("Session content before sending response:", req.session);
-    }
-    next();
-  });
 
 // ===================== AUTH ROUTES ========================
 
@@ -110,12 +101,25 @@ app.get("/auth/steam", passport.authenticate("steam"));
 
 // Steam login callback
 app.get(
-  "/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
-  (req, res) => {
-    res.redirect(FRONTEND_URL);
-  }
-);
+    "/auth/steam/return",
+    passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
+    (req: any , res: any) => {
+      if (req.user) {
+        
+        // Set a non-sensitive cookie
+        res.cookie('userid', req.user.id, { 
+          maxAge: 31556952000, // 1 year
+          httpOnly: false, 
+          secure: IS_PROD,
+          sameSite: "none",
+          domain: ".wrapped.tf",
+        });
+      }
+      
+      // Redirect to the frontend
+      res.redirect(FRONTEND_URL);
+    }
+  );
 
 // Logout
 app.get("/auth/logout", (req, res) => {
@@ -123,6 +127,15 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       console.error("Logout error:", err);
     }
+    // Clear the `userid` cookie
+    res.clearCookie("userid", {
+        domain: ".wrapped.tf",
+        path: "/",
+        secure: IS_PROD,
+        sameSite: "none",
+    });
+
+    console.log("clear")
     // redirect to the frontend
     res.redirect(FRONTEND_URL);
   });
