@@ -11,6 +11,8 @@ interface User {
 const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
+  console.log(import.meta.env.VITE_API_URL + "/auth/steam");
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
