@@ -101,8 +101,8 @@ app.get("/auth/steam", passport.authenticate("steam"));
 // Steam login callback
 app.get(
   "/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: "/" }),
-  (req, res) => {res.redirect("/");}
+  passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
+  (req, res) => {res.redirect(FRONTEND_URL);}
 );
 
 // Logout
