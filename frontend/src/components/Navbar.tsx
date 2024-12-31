@@ -14,14 +14,15 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/user", {
-          credentials: "include", // Include cookies in the request
+        // Use VITE_API_URL + /auth/user
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/user`, {
+          credentials: "include", // include cookies
         });
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData); // Update the state with the fetched user data
+          setUser(userData);
         } else {
-          setUser(null); // Ensure no stale user data on failure
+          setUser(null);
         }
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -33,12 +34,7 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    const logoutUrl =
-      import.meta.env.MODE === "production"
-        ? "https://wrapped.tf/api/auth/logout" // Production URL
-        : "http://localhost:5000/api/auth/logout"; // Development URL
-
-    window.location.href = logoutUrl;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/logout`;
   };
 
   return (
@@ -51,6 +47,7 @@ const Navbar: React.FC = () => {
           wrapped.tf
         </a>
       </div>
+
       <div className="flex items-center space-x-3">
         {/* Theme Toggle */}
         <ThemeToggle />
@@ -73,11 +70,8 @@ const Navbar: React.FC = () => {
           </div>
         ) : (
           <a
-            href={
-              import.meta.env.MODE === "production"
-                ? "https://wrapped.tf/api/auth/steam" // Production URL
-                : "http://localhost:5000/api/auth/steam" // Development URL
-            }
+            // Use VITE_API_URL + /auth/steam
+            href={`${import.meta.env.VITE_API_URL}/auth/steam`}
             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
           >
             Login with Steam
