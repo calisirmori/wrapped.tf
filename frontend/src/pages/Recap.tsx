@@ -109,18 +109,6 @@ const Recap: React.FC = () => {
     spy: "Spy",
   };
 
-  const classMainCount: Record<string, number> = {
-    scout: 5477,
-    soldier: 5395,
-    pyro: 1197,
-    demoman: 2149,
-    heavyweapons: 933,
-    engineer: 916,
-    medic: 3239,
-    sniper: 778,
-    spy: 833,
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
   
@@ -326,12 +314,12 @@ const Recap: React.FC = () => {
 
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
-            {[0, 1, 2, 3, 4].map((section, index) => (
+            {[0, 1, 2, 3, 4].map((section) => (
               <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
-                    src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
+                    src={`/portraits/${profileData?.topFiveClasses[section].class_name}.png`}
                     className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                     alt={`${profileData?.topFiveClasses[0]?.class_name} image`}
                   />
@@ -453,12 +441,12 @@ const Recap: React.FC = () => {
 
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
-            {[0, 1, 2, 3, 4].map((section, index) => (
+            {[0, 1, 2, 3, 4].map((section) => (
               <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
-                    src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
+                    src={`/maps/${profileData?.topFiveMaps[section].map_name}.png`}
                     className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                     alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
                   />
@@ -538,7 +526,7 @@ const Recap: React.FC = () => {
 
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
-            {[0, 1, 2, 3, 4].map((section, index) => (
+            {[0, 1, 2, 3, 4].map((section) => (
               <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
@@ -620,7 +608,7 @@ const Recap: React.FC = () => {
 
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
-            {[0, 1, 2, 3, 4].map((section, index) => (
+            {[0, 1, 2, 3, 4].map((section) => (
               <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
@@ -727,7 +715,7 @@ const Recap: React.FC = () => {
             <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
               {/* Teammates */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
-                {[0, 1, 2].map((section, index) => (
+                {[0, 1, 2].map((section) => (
                   <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
@@ -801,7 +789,7 @@ const Recap: React.FC = () => {
                   </div>
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
-                {[0, 1, 2].map((section, index) => (
+                {[0, 1, 2].map((section) => (
                   <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
@@ -897,7 +885,7 @@ const Recap: React.FC = () => {
             <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
               {/* Teammates */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
-                {[0, 1, 2].map((section, index) => (
+                {[0, 1, 2].map((section) => (
                   <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
@@ -971,7 +959,7 @@ const Recap: React.FC = () => {
                   </div>
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
-                {[0, 1, 2].map((section, index) => (
+                {[0, 1, 2].map((section) => (
                   <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">

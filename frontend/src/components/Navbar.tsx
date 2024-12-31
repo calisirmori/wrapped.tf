@@ -13,26 +13,32 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-        try {
-          const response = await fetch("/api/auth/user", {
-            credentials: "include", // Include cookies in request
-          });
-          if (response.ok) {
-            const user = await response.json();
-            return user;
-          }
-          return null;
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
-          return null;
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include", // Include cookies in the request
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData); // Update the state with the fetched user data
+        } else {
+          setUser(null); // Ensure no stale user data on failure
         }
-      };
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+        setUser(null);
+      }
+    };
 
     fetchUser();
   }, []);
 
   const handleLogout = () => {
-    window.location.href = "http://localhost:5000/api/auth/logout";
+    const logoutUrl =
+      import.meta.env.MODE === "production"
+        ? "https://wrapped.tf/api/auth/logout" // Production URL
+        : "http://localhost:5000/api/auth/logout"; // Development URL
+
+    window.location.href = logoutUrl;
   };
 
   return (
@@ -67,7 +73,11 @@ const Navbar: React.FC = () => {
           </div>
         ) : (
           <a
-            href="http://localhost:5000/api/auth/steam"
+            href={
+              import.meta.env.MODE === "production"
+                ? "https://wrapped.tf/api/auth/steam" // Production URL
+                : "http://localhost:5000/api/auth/steam" // Development URL
+            }
             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
           >
             Login with Steam
