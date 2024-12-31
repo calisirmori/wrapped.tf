@@ -8,132 +8,121 @@ import * as dotenv from "dotenv";
 import profileCardRouter from "./routes/profileCardRoute";
 import * as path from "path";
 
-// Set the allowed origin based on the environment
-const allowedOrigin =
-  process.env.NODE_ENV === "production"
-    ? "https://wrapped.tf" // Production frontend URL
-    : "http://localhost:5173"; // Development frontend URL
-
 // Load environment variables
 dotenv.config();
 
-declare global {
-  namespace Express {
-    interface User {
-      id: string;
-      steamId: string;
-      displayName: string;
-      avatar: string;
-    }
+// Decide where to redirect after login/logout
+const FRONTEND_DEV_URL = "http://localhost:5173";
+const FRONTEND_PROD_URL = "https://wrapped.tf";
 
-    interface Request {
-      user?: User; // Add the `user` property injected by Passport
-    }
-  }
-}
+// If in production, use the “wrapped.tf” for realm and returns; otherwise local dev.
+const IS_PROD = process.env.NODE_ENV === "production";
 
-declare global {
-  namespace Express {
-    interface User {
-      id: string;
-      steamId: string;
-      displayName: string;
-      avatar: string;
-    }
-  }
-}
+const STEAM_REALM = IS_PROD
+  ? "https://wrapped.tf"
+  : "http://localhost:5000";
 
-// Define a User interface
-interface User {
-  id: string;
-  steamId: string;
-  displayName: string;
-  avatar: string;
-}
+const STEAM_RETURN_URL = IS_PROD
+  ? "https://wrapped.tf/auth/steam/return"
+  : "http://localhost:5000/auth/steam/return";
 
-// Initialize Express app
+const FRONTEND_URL = IS_PROD ? FRONTEND_PROD_URL : FRONTEND_DEV_URL;
+
+// Set allowed origin for CORS
+const allowedOrigin = IS_PROD ? FRONTEND_PROD_URL : FRONTEND_DEV_URL;
+
+// Initialize Express
 const app = express();
+
+// CORS
 app.use(
-    cors({
-      origin: allowedOrigin,
-      credentials: true, // Allow cookies to be sent
-    })
-  );
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  })
+);
+
+// Static files & JSON parsing
 app.use(express.json());
 app.use("/static", express.static(path.join(__dirname, "public")));
 
-// Session configuration
+// Session config
 app.use(
-    session({
-      secret: process.env.SESSION_SECRET || "your_secret_key", // Use a strong secret
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true, // Prevent client-side JavaScript access
-        secure: process.env.NODE_ENV === "production", // Use secure cookies in production (requires HTTPS)
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", // Prevent cross-site request forgery
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      },
-    })
-  );
+  session({
+    secret: process.env.SESSION_SECRET || "your_secret_key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: IS_PROD, // true in production if behind HTTPS
+      sameSite: IS_PROD ? "strict" : "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    },
+  })
+);
 
-// Passport.js initialization
+// Passport init
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serialize and deserialize user
+// Serialize/deserialize
 passport.serializeUser((user: Express.User, done) => {
-  // Store the entire user object in the session
   done(null, user);
 });
-
 passport.deserializeUser((user: Express.User, done) => {
-  // Directly retrieve the user object from the session
   done(null, user);
 });
 
-// Configure Steam strategy
+// Steam Strategy
 passport.use(
-    new SteamStrategy(
-      {
-        returnURL: process.env.STEAM_RETURN_URL || "http://localhost:5000/api/auth/steam/return",
-        realm: process.env.STEAM_REALM || "http://localhost:5000",
-        apiKey: process.env.STEAMKEY || "your_steam_api_key",
-      },
-      (identifier: string, profile: any, done) => {
-        const user: Express.User = {
-          id: profile.id,
-          steamId: identifier,
-          displayName: profile.displayName,
-          avatar: profile.photos[2]?.value || "", // Default to empty string if avatar is missing
-        };
-        done(null, user);
-      }
-    )
-  );
+  new SteamStrategy(
+    {
+      returnURL: STEAM_RETURN_URL,
+      realm: STEAM_REALM,
+      apiKey: process.env.STEAMKEY || "your_steam_api_key",
+    },
+    (identifier: string, profile: any, done) => {
+      const user: Express.User = {
+        id: profile.id,
+        steamId: identifier,
+        displayName: profile.displayName,
+        avatar: profile.photos?.[2]?.value || "",
+      };
+      done(null, user);
+    }
+  )
+);
 
-// Steam authentication routes
-app.get("/api/auth/steam", passport.authenticate("steam"));
+// ===================== AUTH ROUTES ========================
 
+// Start Steam login
+app.get("/auth/steam", passport.authenticate("steam"));
+
+// Steam login callback
 app.get(
-  "/api/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: "/" }),
-  (req: any, res: any) => {
-    res.redirect("/"); // Redirect to the homepage after login
+  "/auth/steam/return",
+  passport.authenticate("steam", {
+    failureRedirect: FRONTEND_URL, // on failure, just go home
+  }),
+  (req, res) => {
+    // on success, redirect to the frontend
+    res.redirect(FRONTEND_URL);
   }
 );
 
-// Logout route
-app.get("/api/auth/logout", (req: any, res: any) => {
-  req.logout((err: any) => {
+// Logout
+app.get("/auth/logout", (req, res) => {
+  req.logout(err => {
     if (err) {
       console.error("Logout error:", err);
     }
-    res.redirect("/");
+    // redirect to the frontend
+    res.redirect(FRONTEND_URL);
   });
 });
 
-app.get("/api/auth/user", (req, res) => {
+// Return user info if logged in
+app.get("/auth/user", (req, res) => {
   if (req.user) {
     res.status(200).json(req.user);
   } else {
@@ -141,25 +130,13 @@ app.get("/api/auth/user", (req, res) => {
   }
 });
 
-app.get("/api/auth/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error("Logout error:", err);
-    }
-    res.redirect("/");
-  });
+// ==================== TEST ROUTE =====================
+app.get("/test", (req, res) => {
+  res.json({ message: "Hello from /test endpoint!" });
 });
 
-//currently not parsing
-//app.use('/api', mainParser);
-//app.use('/api/process', logProcessingRoute);
-
-// Register the profile card route
-app.use("/api", profileCardRouter);
-
-app.get("/api/test", (req, res) => {
-    res.json({ message: "Hello from /api/test endpoint!" });
-});
+// ==================== PROFILE ROUTES ==================
+app.use("/profile", profileCardRouter);
 
 // Route to get profile data
 app.get("/api/profile/:id64", async (req, res) => {
