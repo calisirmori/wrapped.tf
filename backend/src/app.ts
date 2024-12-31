@@ -20,7 +20,7 @@ const IS_PROD = process.env.NODE_ENV === "production";
 
 const STEAM_REALM = IS_PROD
   ? "https://api.wrapped.tf"
-  : "http://localhost:5173";
+  : "http://localhost:5000";
 
 const STEAM_RETURN_URL = IS_PROD
   ? "https://api.wrapped.tf/auth/steam/return"
@@ -46,7 +46,6 @@ app.use(
 app.use(express.json());
 app.use("/static", express.static(path.join(__dirname, "public")));
 
-// Session config
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your_secret_key",
@@ -54,8 +53,19 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: IS_PROD, // true in production if behind HTTPS
-      sameSite: IS_PROD ? "strict" : "lax",
+      // 1. Use the parent domain (with leading dot) so subdomains share the cookie
+      domain: ".wrapped.tf",
+
+      // 2. Must set `secure: true` if using HTTPS in production
+      secure: process.env.NODE_ENV === "production",
+
+      // 3. For cross-domain usage (subdomain <-> root domain),
+      //    you typically need sameSite = "none"
+      //    if the subdomain differs from the main domain.
+      //    If you want stricter security, you can try "lax", but "none" is
+      //    often required for cross-subdomain usage with cookies.
+      sameSite: "none",
+
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
   })
@@ -102,12 +112,14 @@ app.get("/auth/steam", passport.authenticate("steam"));
 app.get(
   "/auth/steam/return",
   passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
-  (req, res) => {res.redirect(FRONTEND_URL);}
+  (req, res) => {
+    res.redirect(FRONTEND_URL);
+  }
 );
 
 // Logout
 app.get("/auth/logout", (req, res) => {
-  req.logout(err => {
+  req.logout((err) => {
     if (err) {
       console.error("Logout error:", err);
     }
