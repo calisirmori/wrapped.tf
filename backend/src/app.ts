@@ -104,10 +104,10 @@ app.get(
     "/auth/steam/return",
     passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
     (req: any , res: any) => {
-      if (req.user) {
         
+      if (req.user) {
         // Set a non-sensitive cookie
-        res.cookie('userid', req.user.id, { 
+        res.cookie('userid', req.user, { 
           maxAge: 31556952000, // 1 year
           httpOnly: false, 
           secure: IS_PROD,
@@ -115,7 +115,7 @@ app.get(
           domain: ".wrapped.tf",
         });
       }
-      
+
       // Redirect to the frontend
       res.redirect(FRONTEND_URL);
     }

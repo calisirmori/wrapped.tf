@@ -15,7 +15,7 @@ const Recap: React.FC = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/profile/${id64}`);
+      const response = await fetch(`https://api.wrapped.tf/api/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile data");
       const data = await response.json();
 
@@ -34,7 +34,7 @@ const Recap: React.FC = () => {
 
   const fetchProfileCardImage = async () => {
     try {
-      const response = await fetch(`/api/profile-card/${id64}`);
+      const response = await fetch(`https://api.wrapped.tf/api/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile card image");
 
       const blob = await response.blob();
