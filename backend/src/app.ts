@@ -67,8 +67,10 @@ app.use(passport.session());
 
 // Serialize/deserialize
 passport.serializeUser((user: Express.User, done) => {
+    console.log("serialize:", user)
   done(null, user);
 });
+
 passport.deserializeUser((user: Express.User, done) => {
   done(null, user);
 });
@@ -88,10 +90,18 @@ passport.use(
         displayName: profile.displayName,
         avatar: profile.photos?.[2]?.value || "",
       };
+      console.log("Steam Strategy processed user:", user); 
       done(null, user);
     }
   )
 );
+
+app.use((req, res, next) => {
+    if (req.session) {
+      console.log("Session content before sending response:", req.session);
+    }
+    next();
+  });
 
 // ===================== AUTH ROUTES ========================
 
