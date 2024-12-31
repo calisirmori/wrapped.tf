@@ -10,25 +10,33 @@ profileCardRouter.get(
     async (req: Request<{ id64: string }>, res: Response): Promise<void> => {
       const { id64 } = req.params;
 
+      // Fetch data from the database
+      const dbResult = await query(
+        "SELECT * FROM wrapped.summary INNER JOIN public.steam_info s ON s.id64 = summary.id64 WHERE summary.id64 = $1",
+        [id64]
+      );
+
+      const queryData = dbResult.rows[0];
+      console.log(queryData);
       try {
         // Sample Data (Replace with your actual data)
         const userData = {
-          name: "Rito#GLHF",
-          avatar: "0462901bf034ef06615019cdb2bbfc9bc747b256",
-          minutesPlayed: (18569).toLocaleString(),
-          hoursPlayed: (3869).toLocaleString(),
-          moviesMissed: (61899).toLocaleString(),
-          topMap: ("product").toUpperCase(),
-          topClass: ("demoman").toUpperCase(),
-          topMapKDA: 1.23,
-          topMapWL: 2.3,
-          topMapMatches: 354,
-          topClassKDA: 1.34,
-          topClassWL: 4.0,
-          topClassMatches: 124,
+          name: queryData.name,
+          avatar: queryData.avatar,
+          minutesPlayed: (queryData.minutes_played).toLocaleString(),
+          hoursPlayed: (Number(queryData.hours_played)).toLocaleString(),
+          moviesMissed: (queryData.minutes_played / 90).toFixed(0),
+          topMap: (queryData.map_name).toUpperCase(),
+          topClass: (queryData.class_name).toUpperCase(),
+          topMapKDA: (queryData.map_hours_played).toLocaleString(),
+          topMapWL: queryData.map_win_ratio,
+          topMapMatches: queryData.map_matches_played,
+          topClassKDA: queryData.kda,
+          topClassWL: queryData.class_win_ratio,
+          topClassMatches: queryData.class_matches_played,
           totalKDA: 1.01,
-          totalWL: 56,
-          totalGames: 689,
+          totalWL: queryData.winrate,
+          totalGames: queryData.matches_played,
         };
   
         const browser = await puppeteer.launch({

@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Recap: React.FC = () => {
   const { id64 } = useParams<{ id64: string }>();
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileCardImage, setProfileCardImage] = useState<any>(null);
 
   const fetchProfileData = async () => {
     try {
@@ -25,6 +30,71 @@ const Recap: React.FC = () => {
       setError(err.message);
       setLoading(false);
     }
+  };
+
+  const fetchProfileCardImage = async () => {
+    try {
+      const response = await fetch(`/api/profile-card/${id64}`);
+      if (!response.ok) throw new Error("Failed to fetch profile card image");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Set the image URL to display it on the page
+      setProfileCardImage(url);
+    } catch (error) {
+      console.error("Error fetching profile card image:", error);
+    }
+  };
+
+  const matchesPlayed = new Array(12).fill(0); // Initialize an array for all 12 months with 0
+
+  if (profileData?.activity) {
+    profileData.activity.forEach(({ month, matches_played }: any) => {
+      // Month in the data is 1-based, so adjust to 0-based index
+      const monthIndex = parseInt(month, 10) - 1;
+      matchesPlayed[monthIndex] = matches_played;
+    });
+  }
+
+  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'September', 'October', 'November', 'December']
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Monthly Activity',
+        data: matchesPlayed,
+        backgroundColor: [
+          'rgba(240, 129, 73, 0.8)'
+        ],
+        borderColor: [
+          'rgba(163, 88, 50, 0.8)'
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const options: any = {
+    responsive: true,
+    maintainAspectRatio : false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
   };
 
   const classes: Record<string, string> = {
@@ -51,30 +121,44 @@ const Recap: React.FC = () => {
     spy: 833,
   };
 
-  const downloadProfileCard = async () => {
-    try {
-      const response = await fetch(`/api/profile-card/${id64}`);
-      if (!response.ok) throw new Error("Failed to download the profile card");
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
   
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+    // Array of month names
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
   
-      // Create a link element to download the image
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "profile-card.png";
-      link.click();
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
   
-      // Revoke the object URL
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading profile card:", error);
-    }
+    // Format the date
+    const formattedDate = `${months[date.getMonth()]} ${day}${suffix}`;
+    return formattedDate;
   };
 
   useEffect(() => {
     if (id64) {
       fetchProfileData();
+      fetchProfileCardImage();
     }
   }, [id64]);
 
@@ -103,7 +187,83 @@ const Recap: React.FC = () => {
 
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
-      
+
+      {/* Global Info */}
+      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-300 md:p-8 max-md:p-3 relative">
+        {/* Character/Image */}
+        <div className=" text-center mb-4 md:hidden">
+        <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
+              {id64 && profileData?.steamInfo[id64]?.name}!
+            </h1>
+            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
+          <div className="w-32 h-max rounded-lg flex items-center justify-center mb-2">
+          </div>
+        </div>
+        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-4/6 max-md:w-full">
+          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Unique Players</div>
+                <div className="stat-value max-md:text-base my-1">20,960</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">For 15 year old game that is not too bad at all!</div>
+              </div>
+            </div>
+
+            <div className="stats shadow rounded-md ">
+              <div className="stat max-md:p-3 my-1">
+                <div className="stat-title max-md:text-xs">Matches Played</div>
+                <div className="stat-value max-md:text-base my-1">218,947</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 600 matches everyday!</div>
+              </div>
+            </div>
+
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Playtime</div>
+                <div className="stat-value max-md:text-base my-1">909,969 <span>hrs</span></div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 104 years of playtime!</div>
+              </div>
+            </div>
+          </div>
+          <div className=" text-center max-md:hidden mx-6">
+            <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
+              {id64 && profileData?.steamInfo[id64]?.name}!
+            </h1>
+            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
+            <div className="w-[26rem] h-max rounded-lg flex items-center justify-center mb-2">
+              <img
+                src="/earth.png"
+                alt="Character"
+                className="h-full w-auto object-contain rounded-full"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Total Kills</div>
+                <div className="stat-value max-md:text-base my-1">36,225,975</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">Now thats a lot of damage!</div>
+              </div>
+            </div>
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Self Eliminations</div>
+                <div className="stat-value max-md:text-base my-1">421,026</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is way too many kill-binds!</div>
+              </div>
+            </div>
+            <div className="stats shadow rounded-md">
+              <div className="stat max-md:p-3">
+                <div className="stat-title max-md:text-xs">Heals Given</div>
+                <div className="stat-value max-md:text-base my-1">19.1 Billion</div>
+                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">What would we do without our medics?!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Overview */}
       <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
         <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
@@ -231,791 +391,751 @@ const Recap: React.FC = () => {
         </div>
       </div>
 
-      {/* Global Info */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-300 md:p-8 max-md:p-3 relative">
-        {/* Character/Image */}
-        <div className=" text-center mb-4 md:hidden">
-        <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
-              {id64 && profileData?.steamInfo[id64]?.name}!
-            </h1>
-            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
-          <div className="w-32 h-max rounded-lg flex items-center justify-center mb-2">
+      {/* Most Played Classes New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="text-4xl mx-2">Most Played Classes</div>
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
           </div>
-        </div>
-        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-4/6 max-md:w-full">
-          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
-            <div className="stats shadow rounded-md">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Total Unique Players</div>
-                <div className="stat-value max-md:text-base my-1">20,960</div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">For 15 year old game that is not too bad at all!</div>
-              </div>
-            </div>
 
-            <div className="stats shadow rounded-md ">
-              <div className="stat max-md:p-3 my-1">
-                <div className="stat-title max-md:text-xs">Matches Played</div>
-                <div className="stat-value max-md:text-base my-1">218,947</div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 600 matches everyday!</div>
-              </div>
-            </div>
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section, index) => (
+              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
+                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    alt={`${profileData?.topFiveClasses[0]?.class_name} image`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
 
-            <div className="stats shadow rounded-md">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Total Playtime</div>
-                <div className="stat-value max-md:text-base my-1">909,969 <span>hrs</span></div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is 104 years of playtime!</div>
+                  {/* Class Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start">
+                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1">
+                        {classes[profileData?.topFiveClasses[section].class_name].toUpperCase()}
+                      </h2>
+                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5 ">
+                        {(Number(profileData?.topFiveClasses[section].time_played) /60 /60).toFixed(1)}{" "}hrs
+                      </p>
+                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
+                        {profileData?.topFiveClasses[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-3 max-md:grid-rows-3 col-span-3">
+                    {/* KDA */}
+                    <div className="w-full h-full flex justify-center items-center flex-wrap gap-[0.8vw]">
+                      {/* Kills */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">KDA:</div>
+                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">KILLS</div>
+                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].kills)}</span>
+                          <span className="md:hidden mx-1">/</span>
+                        </div>
+                      </div>
+
+                      {/* Deaths */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">DEATHS</div>
+                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].deaths)}</span>
+                          <span className="md:hidden mx-1">/</span>
+                        </div>
+                      </div>
+
+                      {/* Assists */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">ASSISTS</div>
+                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].assists)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-col">
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          style={{
+                            width: `${(profileData?.topFiveClasses[section].wins / 
+                              (profileData?.topFiveClasses[section].wins + profileData?.topFiveClasses[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          style={{
+                            width: `${(profileData?.topFiveClasses[section].losses / 
+                              (profileData?.topFiveClasses[section].wins + profileData?.topFiveClasses[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="w-full flex justify-center items-center">
+                      {/* Damage / Heals */}
+                      <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[section].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[section].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{profileData?.topFiveClasses[section].class_name ==="medic"? Number(profileData?.topFiveClasses[section].healing).toLocaleString(): Number(profileData?.topFiveClasses[section].damage).toLocaleString()}</span>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-          <div className=" text-center max-md:hidden mx-6">
-            <h1 className=" text-3xl font-semibold mb-2">Hey{" "}
-              {id64 && profileData?.steamInfo[id64]?.name}!
-            </h1>
-            <p>Welcome to 2024 wrapped! This is the first year of your Team Fortress 2 game play recap, so let start with some global stats!</p>
-            <div className="w-[26rem] h-max rounded-lg flex items-center justify-center mb-2">
-              <img
-                src="/earth.png"
-                alt="Character"
-                className="h-full w-auto object-contain rounded-full"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
-            <div className="stats shadow rounded-md">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Total Kills</div>
-                <div className="stat-value max-md:text-base my-1">36,225,975</div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">Now thats a lot of damage!</div>
-              </div>
-            </div>
-            <div className="stats shadow rounded-md">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Self Eliminations</div>
-                <div className="stat-value max-md:text-base my-1">421,026</div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">That is way too many kill-binds!</div>
-              </div>
-            </div>
-            <div className="stats shadow rounded-md">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Heals Given</div>
-                <div className="stat-value max-md:text-base my-1">19.1 Billion</div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">What would we do without our medics?!</div>
-              </div>
-            </div>
-          </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
         </div>
       </div>
 
-      {/* General Info Section */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200 md:p-8 max-md:p-3 relative">
-        {/* Character/Image */}
-        <div className=" text-center mb-4 lg:hidden">
-          <div className="w-32 h-max rounded-lg flex items-center justify-center mb-2">
+      {/* Most Played Maps New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="text-4xl mx-2">Most Played Maps</div>
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section, index) => (
+              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
+                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Map Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start">
+                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1">
+                        {profileData?.topFiveMaps[section].map_name.toUpperCase()}
+                      </h2>
+                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5 ">
+                        {(Number(profileData?.topFiveMaps[section].time_played) /60 /60).toFixed(1)}{" "}hrs
+                      </p>
+                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
+                        {profileData?.topFiveMaps[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveMaps[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-col">
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveMaps[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          style={{
+                            width: `${(profileData?.topFiveMaps[section].wins / 
+                              (profileData?.topFiveMaps[section].wins + profileData?.topFiveMaps[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          style={{
+                            width: `${(profileData?.topFiveMaps[section].losses / 
+                              (profileData?.topFiveMaps[section].wins + profileData?.topFiveMaps[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+
+      {/* Most Played Teammate New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="text-4xl mx-2">Most Played Teammates</div>
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section, index) => (
+              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`}
+                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} avatar`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Map Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start w-full">
+                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden w-full">
+                        {profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}
+                      </h2>
+                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
+                        {profileData?.teammates[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.teammates[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-col">
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.teammates[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          style={{
+                            width: `${(profileData?.teammates[section].wins / 
+                              (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          style={{
+                            width: `${(profileData?.teammates[section].losses / 
+                              (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+
+      {/* Most Played Oponents New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="text-4xl mx-2">Most Played Opponents</div>
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section, index) => (
+              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`}
+                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name} avatar`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Map Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                      <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                        {profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}
+                      </h2>
+                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                        {profileData?.enemies[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.enemies[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-col">
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.enemies[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          style={{
+                            width: `${(profileData?.enemies[section].wins / 
+                              (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          style={{
+                            width: `${(profileData?.enemies[section].losses / 
+                              (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+
+      {/* Playing Trends New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="text-4xl mx-2">Playing Trends</div>
+            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          </div>
+          <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+            <Bar data={data} options={options} />
+          </div>
+          <div>You played {profileData?.dailyActivity[0].matches_played} games on {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}</div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+
+      {/* Best Teammates & Enemies New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+            <div className="flex w-full justify-center items-center">
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="text-4xl mx-2">Best Winrate With</div>
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            </div>
+            <div className="flex w-full justify-center items-center max-md:hidden">
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="text-4xl mx-2">Best Winrate Against</div>
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            </div>
+          </div>
+
+            <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
+              {/* Teammates */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
+                {[0, 1, 2].map((section, index) => (
+                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name} avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                            {profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}
+                          </h2>
+                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                            {profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              style={{
+                                width: `${(profileData?.winningTeammates[section].matches_won / 
+                                  (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              style={{
+                                width: `${(profileData?.winningTeammates[section].matches_lost / 
+                                  (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                <div>
+                  <div className="flex w-full justify-center items-center md:hidden text-warmscale-5 dark:text-lightscale-3">
+                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                    <div className="text-4xl mx-2">Best Winrate Against</div>
+                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                  </div>
+                  {/* Enemies */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
+                {[0, 1, 2].map((section, index) => (
+                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name} avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                            {profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}
+                          </h2>
+                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                            {profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              style={{
+                                width: `${(profileData?.winningEnemies[section].matches_won / 
+                                  (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              style={{
+                                width: `${(profileData?.winningEnemies[section].matches_lost / 
+                                  (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                </div>
+              
+            </div>
+          
+
+
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+
+      {/* Best Teammates & Enemies New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+            <div className="flex w-full justify-center items-center">
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="text-4xl mx-2">Worst Winrate With</div>
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            </div>
+            <div className="flex w-full justify-center items-center max-md:hidden">
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="text-4xl mx-2">Worst Winrate Against</div>
+              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            </div>
+          </div>
+
+            <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
+              {/* Teammates */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
+                {[0, 1, 2].map((section, index) => (
+                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name} avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                            {profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}
+                          </h2>
+                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                            {profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              style={{
+                                width: `${(profileData?.losingTeammates[section].matches_won / 
+                                  (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              style={{
+                                width: `${(profileData?.losingTeammates[section].matches_lost / 
+                                  (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                <div>
+                  <div className="flex w-full justify-center items-center md:hidden text-warmscale-5 dark:text-lightscale-3">
+                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                    <div className="text-4xl mx-2">Worst Winrate Against</div>
+                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                  </div>
+                  {/* Enemies */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
+                {[0, 1, 2].map((section, index) => (
+                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name} avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                            {profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}
+                          </h2>
+                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                            {profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              style={{
+                                width: `${(profileData?.losingEnemies[section].matches_won / 
+                                  (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              style={{
+                                width: `${(profileData?.losingEnemies[section].matches_lost / 
+                                  (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                </div>
+            </div>
+          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+        </div>
+      </div>
+      
+      {/* Share */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark font-londrina bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 ">
+          <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
+            <div className="w-full h-fit flex justify-center items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+                <div className="text-4xl mx-2">Download & Share</div>
+            </div>
             <img
-              src={`https://avatars.fastly.steamstatic.com/${
-                id64 && profileData?.steamInfo[id64]?.avatar
-              }_full.jpg`}
-              alt="Character"
-              className="h-full w-auto object-contain rounded-full"
+              src={profileCardImage}
+              alt="Profile Card"
+              className=""
             />
           </div>
-          <h1 className=" text-2xl font-semibold">
-            {id64 && profileData?.steamInfo[id64]?.name}
-          </h1>
-        </div>
-        <div className="flex max-md:flex-col md:gap-4 max-md:gap-2 justify-center items-center md:w-4/6 max-md:w-full">
-          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center">
-            <div className="stats shadow-lg rounded-md border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">
-                  Most played class
-                </div>
-                <div className="stat-value max-md:text-base">
-                  {classes[profileData?.topFiveClasses[0].class_name]}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  Just like {classMainCount[profileData?.topFiveClasses[0].class_name]} others
-                </div>
-              </div>
-            </div>
-
-            <div className="stats shadow-lg rounded-md border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Matches Played</div>
-                <div className="stat-value max-md:text-base">
-                  {profileData?.general[0].matches_played}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  Top 7% players
-                </div>
-              </div>
-            </div>
-
-            <div className="stats shadow-lg rounded-md border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Matches Won</div>
-                <div className="stat-value max-md:text-base">
-                  {profileData?.general[0].matches_won}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  Your winrate was{" "}
-                  <strong>
-                    {(
-                      (profileData?.general[0].matches_won /
-                        profileData?.general[0].matches_played) *
-                      100
-                    ).toFixed(1)}
-                    %
-                  </strong>
-                  !
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className=" text-center max-lg:hidden">
-            <div className="w-64 h-max rounded-lg flex items-center justify-center mb-2 ">
-              <img
-                src={`https://avatars.fastly.steamstatic.com/${
-                  id64 && profileData?.steamInfo[id64]?.avatar
-                }_full.jpg`}
-                alt="Character"
-                className="h-full w-auto object-contain rounded-full"
-              />
-            </div>
-            <h1 className=" text-3xl font-semibold">
-              {id64 && profileData?.steamInfo[id64]?.name}
-            </h1>
-          </div>
-          <div className="grid grid-cols-1 md:gap-4 max-md:gap-2 max-w-4xl max-md:w-full md:w-full text-center ">
-            <div className="stats shadow-lg rounded-md border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">KDA</div>
-                <div className="stat-value max-md:text-base">
-                  {(
-                    (profileData?.general[0].kills +
-                      profileData?.general[0].assists) /
-                    profileData?.general[0].deaths
-                  ).toFixed(2)}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  Better than 1% of players
-                </div>
-              </div>
-            </div>
-
-            <div className="stats rounded-md shadow-lg border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">
-                  {profileData?.topFiveClasses[0].class_name === "medic"
-                    ? "Heals Given"
-                    : "Damage Dealt"}
-                </div>
-                <div className="stat-value max-md:text-base">
-                  {profileData?.topFiveClasses[0].class_name === "medic"
-                    ? Number(profileData?.general[0].heals).toLocaleString()
-                    : Number(profileData?.general[0].damage).toLocaleString()}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  More than 84% of players
-                </div>
-              </div>
-            </div>
-
-            <div className="stats shadow-lg rounded-md border border-neutral ">
-              <div className="stat max-md:p-3">
-                <div className="stat-title max-md:text-xs">Minutes Played</div>
-                <div className="stat-value max-md:text-base">
-                  {Math.round(
-                    Number(profileData?.general[0].time_played) / 60
-                  ).toLocaleString()}
-                </div>
-                <div className="stat-desc max-md:text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                  That is{" "}
-                  {(
-                    Number(profileData?.general[0].time_played) /
-                    60 /
-                    60
-                  ).toFixed(1)}{" "}
-                  hours!{" "}
-                  {Number(profileData?.general[0].time_played) / 60 / 60 > 100
-                    ? "Wow!"
-                    : ""}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Most Played Classes */}
-      <div className="h-screen w-full snap-start flex items-center justify-center bg-base-300">
-        <div className="text-center w-full">
-          <h2 className="text-2xl font-bold mb-4">Your Most Played Classes</h2>
-          <section className="w-full">
-            <div className="flex flex-col items-center w-full md:px-4 max-md:px-2">
-              <div className="flex items-center justify-center w-full 2xl:w-1/2" >
-                <div className=" text-xl font-bold md:mr-5 max-md:hidden">1.</div>
-                <div className="w-full md:h-48 max-md:h-36 bg-base-100 rounded-lg border border-neutral shadow-lg flex items-center justify-center mb-4 relative">
-                <div className="absolute right-2 top-2 text-xs md:hidden">1</div>
-                  <div className="w-full h-full bg-base-100 rounded-lg shadow-lg flex items-center p-2">
-                    
-                    <img src={`/portraits/${profileData?.topFiveClasses[0].class_name}.png`} className="h-full w-[72px] object-cover object-top rounded-l" alt={`${profileData?.topFiveClasses[0]?.class_name} image`}
-                    />
-                    <div className="m-3 h-full text-left justify-center items-center w-1/5">
-                      <h2 className="md:text-3xl max-md:text-lg font-semibold">
-                        {classes[profileData?.topFiveClasses[0].class_name]}
-                      </h2>
-                      <p className="text-sm">
-                        {(Number(profileData?.topFiveClasses[0].time_played) /60 /60).toFixed(1)}{" "}hrs
-                      </p>
-                      <p className="text-sm max-sm:hidden">
-                        {profileData?.topFiveClasses[0].matches_played} matches
-                      </p>
-                    </div>
-                    <div className="grid md:grid-flow-col md:grid-cols-3 max-md:grid-flow-row max-md:grid-rows-3 w-full gap-2">
-                      <div className="max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-xl max-md:text-sm md:w-full max-md:mr-2 font-bold">
-                          KDA{" "}
-                          <span className="md:hidden">:</span>
-                          <span className="text-xs max-md:hidden">{` (${(
-                            (profileData?.topFiveClasses[0]?.kills +
-                              profileData?.topFiveClasses[0]?.assists) /
-                            profileData?.topFiveClasses[0]?.deaths
-                          ).toFixed(2)})`}</span>
-                        </div>
-                        <div className="md:text-xl max-md:text-sm font-bold">
-                          {profileData?.topFiveClasses[0].kills} /{" "}
-                          {profileData?.topFiveClasses[0].deaths} /{" "}
-                          {profileData?.topFiveClasses[0].assists}
-                        </div>
-                      </div>
-                      <div className="text-center py-2 md:border-x max-md:border-y border-neutral max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-xl max-md:text-sm md:w-full max-md:mr-2 font-bold flex justify-center items-center md:-mb-2 ">
-                          <div className="max-md:w-1/2 text-right md:hidden max-md:mr-2">W/L:</div>
-                          <div className="max-md:w-1/2 text-right max-md:hidden">WON</div>
-                          <div className="mx-2 md:text-2xl max-md:text-sm max-md:hidden">-</div>
-                          <div className="max-md:w-1/2 text-left max-md:hidden">LOST</div>
-                        </div>
-                        <div className="md:text-2xl max-md:text-sm font-bold flex justify-center items-center">
-                          <div className="w-1/2 text-right">{profileData?.topFiveClasses[0].wins}</div>
-                          <div className="mx-2 md:text-2xl max-md:text-sm max-md:hidden">-</div>
-                          <div className="md:mx-2 text-sm md:hidden">/</div>
-                          <div className="md:w-1/2 text-left">{profileData?.topFiveClasses[0].losses}</div>
-                        </div>
-                      </div>
-                      <div className="text-center max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-xl max-md:text-sm font-bold flex justify-center items-center md:-mb-1 ">
-                          <div className="md:w-1/2 text-md max-md:mr-2">{profileData?.topFiveClasses[0].class_name ==="medic" ? "HEALS" : "DAMAGE"}<span className="md:hidden">:</span></div>
-                        </div>
-                        <div className="md:text-2xl max-md:text-sm font-bold flex justify-center items-center">
-                          <div className="md:w-1/2">{profileData?.topFiveClasses[0].class_name ==="medic"  ? Number(profileData?.topFiveClasses[0].healing).toLocaleString(): Number(profileData?.topFiveClasses[0].damage).toLocaleString()}</div>
-                        </div>
-                      </div>
-                    </div>                    
-                  </div>
-                </div>
-              </div>
-
-              {/* Other Sections */}
-              {[1, 2, 3, 4].map((section, index) => (
-                <div key={index} className="flex items-center w-full 2xl:w-1/2">
-                  <div className="text-xl font-bold mr-5 max-md:hidden">{section + 1}.</div>
-                  <div className="w-full h-24 bg-base-200 rounded-lg shadow-lg flex items-center mb-4 p-2  border border-neutral  relative">
-                    <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                    <img src={`/portraits/${profileData?.topFiveClasses[section].class_name}.png`} className="w-24 h-20 object-cover object-top rounded-l" alt={`${profileData?.topFiveClasses[section]?.class_name} image`}/>
-                    <div className="m-3 h-full text-left justify-center items-center w-1/5">
-                      <h2 className="md:text-3xl max-md:text-lg font-semibold">{classes[profileData?.topFiveClasses[section].class_name]}</h2>
-                      <p className="text-sm">{(Number(profileData?.topFiveClasses[section].time_played)/60/60).toFixed(1)}{" "}hrs</p>
-                      <p className="text-sm max-sm:hidden">{profileData?.topFiveClasses[section].matches_played}{" "}matches</p>
-                    </div>
-                    <div className=" grid md:grid-flow-col md:grid-cols-3 max-md:grid-flow-row max-md:grid-rows-3 w-full md:gap-2">
-                      <div className="max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-xl max-md:text-sm font-bold md:-mb-1">KDA{" "}
-                          <span className="md:hidden mr-2">:</span>
-                          <span className="text-xs text-opacity-10 max-md:hidden">{`(${((profileData?.topFiveClasses[section]?.kills +profileData?.topFiveClasses[section]?.assists) /profileData?.topFiveClasses[section]?.deaths).toFixed(2)})`}</span>
-                        </div>
-                        <div className="md:text-2l max-md:text-sm font-bold">{profileData?.topFiveClasses[section].kills} /{" "}{profileData?.topFiveClasses[section].deaths} /{" "}{profileData?.topFiveClasses[section].assists}
-                        </div>
-                      </div>
-                      <div className="text-center max-md:h-fit max-md:py-1 md:border-x max-md:border-y border-neutral max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-xl max-md:text-sm font-bold flex justify-center items-center md:-mb-2">
-                          <div className="max-md:w-1/2 text-right md:hidden max-md:mr-2">W/L:</div>
-                          <div className="w-1/2 text-right max-md:hidden">WON</div>
-                          <div className="md:mx-2 text-2xl max-md:hidden">-</div>
-                          <div className="w-1/2 text-left max-md:hidden">LOST</div>
-                        </div>
-                        <div className="md:text-xl max-md:text-sm font-bold flex justify-center items-center">
-                          <div className="w-1/2 text-right">
-                            {profileData?.topFiveClasses[section].wins}
-                          </div>
-                          <div className="md:mx-2 md:text-2xl max-md:text-sm max-md:hidden">-</div>
-                          <span className="md:hidden">/</span>
-                          <div className="w-1/2 text-left">
-                            {profileData?.topFiveClasses[section].losses}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center max-md:flex max-md:justify-center max-md:items-center">
-                        <div className="md:text-lg max-md:text-sm font-bold flex justify-center items-center md:-mb-1">
-                          <div className="md:w-1/2 text-md">
-                            {profileData?.topFiveClasses[section].class_name ==="medic" ? "HEALS"  : "DAMAGE"}
-                            <span className="md:hidden mr-2">:</span>
-                          </div>
-                        </div>
-                        <div className="md:text-2xl max-md:text-sm font-bold flex justify-center items-center">
-                          <div className="md:w-1/2">
-                            {profileData?.topFiveClasses[section].class_name ===
-                            "medic"
-                              ? Number(
-                                  profileData?.topFiveClasses[section].healing
-                                ).toLocaleString()
-                              : Number(
-                                  profileData?.topFiveClasses[section].damage
-                                ).toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      </div>
-
-      {/* Most Played Maps */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200">
-        <div className="flex justify-center items-center w-full 2xl:w-1/2">
-          <div className="text-center text-xl font-bold">MOST PLAYED MAPS</div>
-        </div>
-        {[0, 1, 2, 3, 4].map((section, index) => (
-          <div key={index} className="flex items-center w-full 2xl:w-1/2">
-            <div className="w-full rounded-lg flex items-center m-2 relative">
-              <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-neutral max-md:p-2">
-                <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                <img src={`/maps/${profileData?.topFiveMaps[section].map_name}.png`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.topFiveMaps[section].map_name} image`}/>
-                <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-1/5 max-md:w-2/5 border-r border-neutral">
-                  <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                    {profileData?.topFiveMaps[section].map_name.charAt(0).toUpperCase() + profileData?.topFiveMaps[section].map_name.slice(1).toLowerCase()}
-                  </h2>
-                  <p className="md:text-sm max-md:text-xs">
-                  {profileData?.topFiveMaps[section].matches_played} matches
-                  </p>
-                  <p className="md:text-sm max-md:text-xs">
-                  {((profileData?.topFiveMaps[section].wins / profileData?.topFiveMaps[section].matches_played) * 100).toFixed(0)}% winrate                  </p>
-                </div>
-                <div className="w-full pr-3 h-full">
-                <div className="flex justify-center items-center">
-                    <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                      <div>
-                        <div className="">WINS</div>
-                        <div className="">{profileData?.topFiveMaps[section]?.wins}</div>
-                      </div>
-                      <div>
-                        <div className="">LOSSES</div>
-                        <div className="">{profileData?.topFiveMaps[section]?.losses}</div>
-                      </div>  
-                    </div>
-                  </div>
-                  <div className="h-2 w-full rounded-lg relative mb-1">
-                  {/* Green Success Bar */}
-                    <div
-                      className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                      style={{
-                        width: `${((profileData?.topFiveMaps[section]?.wins / profileData?.topFiveMaps[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-
-                    {/* Red Error Bar */}
-                    <div
-                      className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                      style={{
-                        left: `${((profileData?.topFiveMaps[section]?.wins / profileData?.topFiveMaps[section]?.matches_played) * 100) || 0}%`,
-                        width: `${100 - ((profileData?.topFiveMaps[section]?.wins / profileData?.topFiveMaps[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Teammates */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-300">
-        <div className="flex justify-center items-center w-full 2xl:w-1/2">
-          <div className="text-center text-xl font-bold">MOST PLAYED TEAMMATES</div>
-        </div>
-        {[0, 1, 2, 3, 4].map((section, index) => (
-          <div key={index} className="flex items-center w-full 2xl:w-1/2">
-            <div className="w-full rounded-lg flex items-center m-2 relative">
-              <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-neutral max-md:p-2">
-                <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                <img src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} image`}/>
-                <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-1/5 max-md:w-2/5 border-r border-neutral">
-                  <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                    {profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}
-                  </h2>
-                  <p className="md:text-sm max-md:text-xs">
-                    {profileData?.teammates[section].matches_played} matches
-                  </p>
-                  <p className="md:text-sm max-md:text-xs">
-                    {((profileData?.teammates[section].wins / profileData?.teammates[section].matches_played) * 100).toFixed(0)}% winrate
-                  </p>
-                </div>
-                <div className="w-full pr-3 h-full">
-                <div className="flex justify-center items-center">
-                    <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                      <div>
-                        <div className="">WINS</div>
-                        <div className="">{profileData?.enemies[section]?.wins}</div>
-                      </div>
-                      <div>
-                        <div className="">LOSSES</div>
-                        <div className="">{profileData?.enemies[section]?.losses}</div>
-                      </div>  
-                    </div>
-                  </div>
-                  <div className="h-2 w-full rounded-lg relative mb-1">
-                  {/* Green Success Bar */}
-                    <div
-                      className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                      style={{
-                        width: `${((profileData?.teammates[section]?.wins / profileData?.teammates[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-
-                    {/* Red Error Bar */}
-                    <div
-                      className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                      style={{
-                        left: `${((profileData?.teammates[section]?.wins / profileData?.teammates[section]?.matches_played) * 100) || 0}%`,
-                        width: `${100 - ((profileData?.teammates[section]?.wins / profileData?.teammates[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Enemies */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200">
-        <div className="flex justify-center items-center w-full 2xl:w-1/2">
-          <div className="text-center text-xl font-bold">MOST PLAYED ENEMIES</div>
-        </div>
-        {[0, 1, 2, 3, 4].map((section, index) => (
-          <div key={index} className="flex items-center w-full 2xl:w-1/2">
-            <div className="w-full rounded-lg flex items-center m-2 relative">
-              <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-neutral max-md:p-2">
-                <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                <img src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} image`}/>
-                <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-1/5 max-md:w-2/5 border-r border-neutral">
-                  <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                    {profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}
-                  </h2>
-                  <p className="md:text-sm max-md:text-xs">
-                    {profileData?.enemies[section].matches_played} matches
-                  </p>
-                  <p className="md:text-sm max-md:text-xs">
-                    {((profileData?.enemies[section].wins / profileData?.enemies[section].matches_played) * 100).toFixed(0)}% winrate
-                  </p>
-                </div>
-                <div className="w-full pr-3 h-full">
-                  <div className="flex justify-center items-center">
-                    <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                      <div>
-                        <div className="">WINS</div>
-                        <div className="">{profileData?.enemies[section]?.wins}</div>
-                      </div>
-                      <div>
-                        <div className="">LOSSES</div>
-                        <div className="">{profileData?.enemies[section]?.losses}</div>
-                      </div>  
-                    </div>
-                  </div>
-                  <div className="h-2 w-full rounded-lg relative mb-1">
-                  {/* Green Success Bar */}
-                    <div
-                      className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                      style={{
-                        width: `${((profileData?.enemies[section]?.wins / profileData?.enemies[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-
-                    {/* Red Error Bar */}
-                    <div
-                      className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                      style={{
-                        left: `${((profileData?.enemies[section]?.wins / profileData?.enemies[section]?.matches_played) * 100) || 0}%`,
-                        width: `${100 - ((profileData?.enemies[section]?.wins / profileData?.enemies[section]?.matches_played) * 100) || 0}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Best Teammates & Enemies */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-300">
-        <div className="w-full h-full flex max-md:flex-col justify-center items-center 2xl:w-2/3">
-          <div className="w-full">
-          <div className="flex justify-center items-center w-full">
-            <div className="text-center text-xl font-bold">BEST WINRATE WITH</div>
-          </div>
-          {[0, 1, 2].map((section, index) => (
-          <div key={index} className="flex items-center w-full">
-            <div className="w-full rounded-lg flex items-center m-2 relative">
-              <div className="flex w-full h-24 bg-base-200 rounded-lg shadow-lg border border-success max-md:p-2">
-                <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                <img src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name} image`}/>
-                <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-2/6 max-md:w-2/5 border-r border-neutral">
-                  <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                    {profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}
-                  </h2>
-                  <p className="md:text-sm max-md:text-xs">
-                    {profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section]?.matches_lost} matches
-                  </p>
-                  <p className="md:text-sm max-md:text-xs">
-                    {((profileData?.winningTeammates[section].matches_won / (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section]?.matches_lost)) * 100).toFixed(0)}% winrate
-                  </p>
-                </div>
-                <div className="w-full pr-3 h-full">
-                  <div className="flex justify-center items-center">
-                    <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                      <div>
-                        <div className="">WINS</div>
-                        <div className="">{profileData?.winningTeammates[section]?.matches_won}</div>
-                      </div>
-                      <div>
-                        <div className="">LOSSES</div>
-                        <div className="">{profileData?.winningTeammates[section]?.matches_lost}</div>
-                      </div>  
-                    </div>
-                  </div>
-                  <div className="h-2 w-full rounded-lg relative mb-1">
-                  {/* Green Success Bar */}
-                    <div
-                      className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                      style={{
-                        width: `${((profileData?.winningTeammates[section]?.matches_won / (profileData?.winningTeammates[section]?.matches_won + profileData?.winningTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                      }}
-                    ></div>
-
-                    {/* Red Error Bar */}
-                    <div
-                      className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                      style={{
-                        left: `${((profileData?.winningTeammates[section]?.matches_won / (profileData?.winningTeammates[section]?.matches_won + profileData?.winningTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                        width: `${100 - ((profileData?.winningTeammates[section]?.matches_won / (profileData?.winningTeammates[section]?.matches_won + profileData?.winningTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          ))}
-          </div>
-          <div className="w-full">
-          <div className="flex justify-center items-center w-full max-md:mt-3">
-            <div className="text-center text-xl font-bold">BEST WINRATE AGAINST</div>
-          </div>
-          {[0, 1, 2].map((section, index) => (
-            <div key={index} className="flex items-center w-full">
-              <div className="w-full rounded-lg flex items-center m-2 relative">
-                <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-success max-md:p-2">
-                  <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                  <img src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name} image`}/>
-                  <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-2/6 max-md:w-2/5 border-r border-neutral">
-                    <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                      {profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}
-                    </h2>
-                    <p className="md:text-sm max-md:text-xs">
-                      {profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section]?.matches_lost} matches
-                    </p>
-                    <p className="md:text-sm max-md:text-xs">
-                      {((profileData?.winningEnemies[section].matches_won / (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section]?.matches_lost)) * 100).toFixed(0)}% winrate
-                    </p>
-                  </div>
-                  <div className="w-full pr-3 h-full">
-                    <div className="flex justify-center items-center">
-                      <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                        <div>
-                          <div className="">WINS</div>
-                          <div className="">{profileData?.winningEnemies[section]?.matches_won}</div>
-                        </div>
-                        <div>
-                          <div className="">LOSSES</div>
-                          <div className="">{profileData?.winningEnemies[section]?.matches_lost}</div>
-                        </div>  
-                      </div>
-                    </div>
-                    <div className="h-2 w-full rounded-lg relative mb-1">
-                    {/* Green Success Bar */}
-                      <div
-                        className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                        style={{
-                          width: `${((profileData?.winningEnemies[section]?.matches_won / (profileData?.winningEnemies[section]?.matches_won + profileData?.winningEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                        }}
-                      ></div>
-
-                      {/* Red Error Bar */}
-                      <div
-                        className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                        style={{
-                          left: `${((profileData?.winningEnemies[section]?.matches_won / (profileData?.winningEnemies[section]?.matches_won + profileData?.winningEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                          width: `${100 - ((profileData?.winningEnemies[section]?.matches_won / (profileData?.winningEnemies[section]?.matches_won + profileData?.winningEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Worst Teammates & Enemies */}
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200">
-        <div className="w-full h-full flex max-md:flex-col justify-center items-center 2xl:w-2/3">
-          <div className="w-full">
-          <div className="flex justify-center items-center w-full">
-            <div className="text-center text-xl font-bold">WORST WINRATE WITH</div>
-          </div>
-          {[0, 1, 2].map((section, index) => (
-          <div key={index} className="flex items-center w-full">
-            <div className="w-full rounded-lg flex items-center m-2 relative">
-              <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-error max-md:p-2">
-                <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                <img src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name} image`}/>
-                <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-2/6 max-md:w-2/5 border-r border-neutral">
-                  <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                    {profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}
-                  </h2>
-                  <p className="md:text-sm max-md:text-xs">
-                    {profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section]?.matches_lost} matches
-                  </p>
-                  <p className="md:text-sm max-md:text-xs">
-                    {((profileData?.losingTeammates[section].matches_won / (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section]?.matches_lost)) * 100).toFixed(0)}% winrate
-                  </p>
-                </div>
-                <div className="w-full pr-3 h-full">
-                  <div className="flex justify-center items-center">
-                    <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                      <div>
-                        <div className="">WINS</div>
-                        <div className="">{profileData?.losingTeammates[section]?.matches_won}</div>
-                      </div>
-                      <div>
-                        <div className="">LOSSES</div>
-                        <div className="">{profileData?.losingTeammates[section]?.matches_lost}</div>
-                      </div>  
-                    </div>
-                  </div>
-                  <div className="h-2 w-full rounded-lg relative mb-1">
-                  {/* Green Success Bar */}
-                    <div
-                      className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                      style={{
-                        width: `${((profileData?.losingTeammates[section]?.matches_won / (profileData?.losingTeammates[section]?.matches_won + profileData?.losingTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                      }}
-                    ></div>
-
-                    {/* Red Error Bar */}
-                    <div
-                      className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                      style={{
-                        left: `${((profileData?.losingTeammates[section]?.matches_won / (profileData?.losingTeammates[section]?.matches_won + profileData?.losingTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                        width: `${100 - ((profileData?.losingTeammates[section]?.matches_won / (profileData?.losingTeammates[section]?.matches_won + profileData?.losingTeammates[section]?.matches_lost)) * 100) || 0}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          ))}
-          </div>
-          <div className="w-full">
-          <div className="flex justify-center items-center w-full max-md:mt-3">
-            <div className="text-center text-xl font-bold">WORST WINRATE AGAINST</div>
-          </div>
-          {[0, 1, 2].map((section, index) => (
-            <div key={index} className="flex items-center w-full">
-              <div className="w-full rounded-lg flex items-center m-2 relative">
-                <div className="flex w-full h-24 bg-base-100 rounded-lg shadow-lg border border-error max-md:p-2">
-                  <div className="absolute right-2 top-2 text-xs md:hidden">{section + 1}</div>
-                  <img src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`} className="md:w-24 md:m-2 md:h-20 max-md:h-22 max-md:w-12 object-cover object-top rounded-l" alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name} image`}/>
-                  <div className="mx-2 p-1 h-full text-left justify-center items-center md:w-2/6 max-md:w-2/5 border-r border-neutral">
-                    <h2 className="md:text-2xl max-md:text-xs font-bold md:max-w-28 max-md:max-w-20 truncate overflow-hidden">
-                      {profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}
-                    </h2>
-                    <p className="md:text-sm max-md:text-xs">
-                      {profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section]?.matches_lost} matches
-                    </p>
-                    <p className="md:text-sm max-md:text-xs">
-                      {((profileData?.losingEnemies[section].matches_won / (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section]?.matches_lost)) * 100).toFixed(0)}% winrate
-                    </p>
-                  </div>
-                  <div className="w-full pr-3 h-full">
-                    <div className="flex justify-center items-center">
-                      <div className="grid grid-cols-2 text-center md:text-lg max-md:text-sm font-bold items-center w-full h-full gap-4 mt-3 mb-1">
-                        <div>
-                          <div className="">WINS</div>
-                          <div className="">{profileData?.losingEnemies[section]?.matches_won}</div>
-                        </div>
-                        <div>
-                          <div className="">LOSSES</div>
-                          <div className="">{profileData?.losingEnemies[section]?.matches_lost}</div>
-                        </div>  
-                      </div>
-                    </div>
-                    <div className="h-2 w-full rounded-lg relative mb-1">
-                    {/* Green Success Bar */}
-                      <div
-                        className="bg-success h-2 absolute rounded-l-lg bg-opacity-60 border-r-2 border-base-300"
-                        style={{
-                          width: `${((profileData?.losingEnemies[section]?.matches_won / (profileData?.losingEnemies[section]?.matches_won + profileData?.losingEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                        }}
-                      ></div>
-
-                      {/* Red Error Bar */}
-                      <div
-                        className="bg-error h-2 absolute rounded-r-lg bg-opacity-60"
-                        style={{
-                          left: `${((profileData?.losingEnemies[section]?.matches_won / (profileData?.losingEnemies[section]?.matches_won + profileData?.losingEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                          width: `${100 - ((profileData?.losingEnemies[section]?.matches_won / (profileData?.losingEnemies[section]?.matches_won + profileData?.losingEnemies[section]?.matches_lost)) * 100) || 0}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="h-screen w-full snap-start flex flex-col items-center justify-center bg-base-200">
-      <button
-        onClick={downloadProfileCard}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"
-      >
-        Download Profile Card
-      </button>
-      </div>
     </div>
   );
 };

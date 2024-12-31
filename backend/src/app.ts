@@ -35,6 +35,8 @@ app.get('/api/profile/:id64', async (req, res) => {
             topFiveMaps,
             winningEnemies,
             winningTeammates,
+            dailyActivity,
+            percentiles
         ] = await Promise.all([
             query('SELECT * FROM wrapped.general WHERE id64 = $1', [id64]),
             query('SELECT * FROM wrapped.monthly_activity WHERE id64 = $1', [id64]),
@@ -74,6 +76,8 @@ app.get('/api/profile/:id64', async (req, res) => {
                 ORDER BY win_loss_ratio DESC
                 LIMIT 5
             `, [id64]),
+            query('SELECT * FROM wrapped.daily_activity WHERE id64 = $1', [id64]),
+            query('SELECT * FROM wrapped.general_percentiles WHERE id64= $1', [id64]),
         ]);
 
         // Collect all unique id64s
@@ -124,6 +128,8 @@ app.get('/api/profile/:id64', async (req, res) => {
             topFiveMaps: topFiveMaps.rows,
             winningEnemies: winningEnemies.rows,
             winningTeammates: winningTeammates.rows,
+            dailyActivity: dailyActivity.rows,
+            percentiles: percentiles.rows,
             steamInfo, // Attach steam_info data as an object of objects
         };
 
