@@ -1,3 +1,6 @@
+[tools]
+yarn = "1.22.19"  # or whatever version you want
+
 [phases.setup]
 commands = [
   "cd frontend && yarn install && yarn build"
