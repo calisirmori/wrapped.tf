@@ -66,7 +66,7 @@ profileCardRouter.get(
                     width: 800px;
                     height: 800px;
                     background-color: rgb(31, 31, 31);
-                    background-image: url('http://localhost:5000/static/images/topo-background.svg');
+                    background-image: url('/static/images/topo-background.svg');
                     background-size: cover;
                     background-position: center;
                     position: relative;
@@ -133,7 +133,7 @@ profileCardRouter.get(
                   .moretf-logo{
                     width: 34px;
                     height: 34px;
-                    background-image: url('http://localhost:5000/static/images/new-logo.png');
+                    background-image: url('/static/images/new-logo.png');
                     background-size: cover;
                     background-position: center;
                     position: absolute;
@@ -557,7 +557,7 @@ profileCardRouter.get(
 
                     <!-- rectangles -->
                     <div class="rectangle">
-                        <img src="http://localhost:5000/static/images/${userData.topMap}.png" alt=${userData.topMap}>
+                        <img src="/static/images/${userData.topMap}.png" alt=${userData.topMap}>
                     </div>
                     <div class="line map-1"></div>
                     <div class="line map-2"></div>
@@ -598,7 +598,7 @@ profileCardRouter.get(
                     </div>
 
                     <div class="rectangle-class">
-                        <img src="http://localhost:5000/static/classes/${userData.topClass}.png" alt=${userData.topClass}>
+                        <img src="/static/classes/${userData.topClass}.png" alt=${userData.topClass}>
                     </div>
 
                     <div class="text kda">KDA</div>

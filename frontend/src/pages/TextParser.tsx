@@ -8,7 +8,7 @@ const TextParser: React.FC = () => {
     useEffect(() => {
         // Fetch data from the backend API
         axios
-            .get('http://localhost:5000/api/parse-text') // Adjust the URL if needed
+            .get('/api/parse-text') // Adjust the URL if needed
             .then((response) => {
                 console.log('API Response:', response.data); // Debug API response
                 setPlayers(response.data.players); // Set players from the response

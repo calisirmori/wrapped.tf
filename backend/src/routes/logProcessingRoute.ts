@@ -29,7 +29,7 @@ const steamID3ToID64 = (steamID3: string): string => {
 router.get('/:logId', async (req, res) => {
     const logId = req.params.logId; // Extract log ID from URL
     const externalUrl = `http://logs.tf/api/v1/log/${logId}`; // External API URL
-    const internalApiUrl = `http://localhost:5000/api/parse-log?logId=${logId}`; // Internal API URL (adjust as needed)
+    const internalApiUrl = `/api/parse-log?logId=${logId}`; // Internal API URL (adjust as needed)
 
     try {
         // Fetch external data (JSON from logs.tf)
