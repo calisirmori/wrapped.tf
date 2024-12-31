@@ -11,9 +11,12 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
     ssl: {
-        ca: fs.readFileSync("./ca-certificate.crt")
+        ca: process.env.CA_CERT,
+        rejectUnauthorized: true, 
     },
 });
+
+console.log(process.env.CA_CERT)
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
 
