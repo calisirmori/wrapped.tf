@@ -1,0 +1,7 @@
+[phases.setup]
+commands = [
+  "cd frontend && yarn install && yarn build"
+]
+
+[phases.run]
+cmd = "cd backend && yarn install && yarn start"
