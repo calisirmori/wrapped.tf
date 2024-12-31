@@ -1,2 +1,8 @@
 [phases.setup]
 nixpkgs = ["nodejs", "yarn"]
+
+[phases.build]
+cmd = "cd frontend && yarn install && yarn build"
+
+[phases.start]
+cmd = "cd backend && yarn install && yarn start"
