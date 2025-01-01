@@ -86,6 +86,9 @@ const Recap: React.FC = () => {
       tooltip: {
         enabled: true,
       },
+      datalabels: {
+        display: false,
+      },
     },
     scales: {
       x: {
@@ -153,9 +156,9 @@ const Recap: React.FC = () => {
   // Update the tab title dynamically when profileData changes
   useEffect(() => {
     if (id64 && profileData?.steamInfo?.[id64]?.name) {
-      document.title = `${profileData.steamInfo[id64].name}'s Recap - Wrapped.tf`;
+      document.title = `${profileData.steamInfo[id64].name} - wrapped.tf`;
     } else {
-      document.title = "Recap - Wrapped.tf";
+      document.title = "recap - wrapped.tf";
     }
     return () => {
       document.title = "Wrapped.tf"; // Reset title when unmounting
