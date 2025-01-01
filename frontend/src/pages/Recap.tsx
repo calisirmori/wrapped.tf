@@ -337,7 +337,7 @@ const Recap: React.FC = () => {
 
           {/* Cards */}
           <div className={`w-full h-full overflow-hidden grid grid-rows-${profileData?.topFiveClasses.length || 0} p-2 xl:gap-3 max-xl:gap-2`}>
-            {Array.from({ length: profileData?.topFiveClasses.length || 0 }).map((section:any, index:any) => (
+            {Array.from({ length: profileData?.topFiveClasses.length || 0 }).map((_,index:any) => (
               <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{index+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
