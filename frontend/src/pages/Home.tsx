@@ -63,7 +63,7 @@ const Home: React.FC = () => {
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
-            <div className="text-4xl mx-2 text">2024 Wrapped!</div>
+            <div className="text-4xl mx-2">2024 Wrapped!</div>
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
           </div>
 

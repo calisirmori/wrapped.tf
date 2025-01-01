@@ -39,7 +39,7 @@ const Recap: React.FC = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(process.env.NODE_ENV === "production" ? `/profile/${id64}` : `http://localhost:5000/profile/${id64}`);
+      const response = await fetch(process.env.NODE_ENV === "production" ? `https://api.wrapped.tf/profile/${id64}` : `http://localhost:5000/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile data");
       const data = await response.json();
 
