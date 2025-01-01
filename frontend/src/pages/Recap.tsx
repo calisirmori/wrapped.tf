@@ -155,8 +155,6 @@ const Recap: React.FC = () => {
     return formattedDate;
   };
 
-  console.log(profileData?.topFiveClasses.length);
-
   useEffect(() => {
     if (id64) {
       fetchProfileData();
@@ -174,8 +172,6 @@ const Recap: React.FC = () => {
       document.title = "Wrapped.tf"; // Reset title when unmounting
     };
   }, [profileData, id64]);
-
-  
 
   const formatNumber = (num: any) => {
     if (num >= 1000) {
