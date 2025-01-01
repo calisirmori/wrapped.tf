@@ -19,7 +19,7 @@ const Recap: React.FC = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/profile/${id64}`);
+      const response = await fetch(`/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile data");
       const data = await response.json();
 
