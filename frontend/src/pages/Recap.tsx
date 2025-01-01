@@ -155,6 +155,8 @@ const Recap: React.FC = () => {
     return formattedDate;
   };
 
+  console.log(profileData?.topFiveClasses.length);
+
   useEffect(() => {
     if (id64) {
       fetchProfileData();
@@ -172,6 +174,8 @@ const Recap: React.FC = () => {
       document.title = "Wrapped.tf"; // Reset title when unmounting
     };
   }, [profileData, id64]);
+
+  
 
   const formatNumber = (num: any) => {
     if (num >= 1000) {
@@ -336,15 +340,15 @@ const Recap: React.FC = () => {
           </div>
 
           {/* Cards */}
-          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
-            {[0, 1, 2, 3, 4].map((section) => (
-              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+          <div className={`w-full h-full overflow-hidden grid grid-rows-${profileData?.topFiveClasses.length || 0} p-2 xl:gap-3 max-xl:gap-2`}>
+            {Array.from({ length: profileData?.topFiveClasses.length || 0 }).map((section:any, index:any) => (
+              <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{index+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
-                    src={`/portraits/${profileData?.topFiveClasses[section].class_name}.png`}
+                    src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
                     className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                    alt={`${profileData?.topFiveClasses[0]?.class_name} image`}
+                    alt={`${profileData?.topFiveClasses[index]?.class_name} image`}
                   />
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -353,13 +357,13 @@ const Recap: React.FC = () => {
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start">
                       <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1">
-                        {classes[profileData?.topFiveClasses[section].class_name].toUpperCase()}
+                        {classes[profileData?.topFiveClasses[index].class_name].toUpperCase()}
                       </h2>
                       <p className="text-sm text-warmscale-2 dark:text-lightscale-5 ">
-                        {(Number(profileData?.topFiveClasses[section].time_played) /60 /60).toFixed(1)}{" "}hrs
+                        {(Number(profileData?.topFiveClasses[index].time_played) /60 /60).toFixed(1)}{" "}hrs
                       </p>
                       <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
-                        {profileData?.topFiveClasses[section].matches_played} matches
+                        {profileData?.topFiveClasses[index].matches_played} matches
                       </p>
                     </div>
                   </div>
@@ -371,7 +375,7 @@ const Recap: React.FC = () => {
                         <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">KDA:</div>
                         <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">KILLS</div>
                         <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].kills)}</span>
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].kills)}</span>
                           <span className="md:hidden mx-1">/</span>
                         </div>
                       </div>
@@ -380,7 +384,7 @@ const Recap: React.FC = () => {
                       <div className="flex justify-center items-center md:flex-col">
                         <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">DEATHS</div>
                         <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].deaths)}</span>
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].deaths)}</span>
                           <span className="md:hidden mx-1">/</span>
                         </div>
                       </div>
@@ -389,12 +393,12 @@ const Recap: React.FC = () => {
                       <div className="flex justify-center items-center md:flex-col">
                         <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">ASSISTS</div>
                         <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].assists)}</span>
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].assists)}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* WL Section */}
+                    {/* WL index */}
                     <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
                       <div className="flex justify-center items-center md:gap-4">
                         {/* Wins */}
@@ -402,7 +406,7 @@ const Recap: React.FC = () => {
                           <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
                           <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
                           <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].wins)}</span>
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].wins)}</span>
                             <span className="md:hidden mx-1">/</span>
                           </div>
                         </div>
@@ -410,7 +414,7 @@ const Recap: React.FC = () => {
                         <div className="flex justify-center items-center md:flex-col">
                           <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
                           <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[section].losses)}</span>
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].losses)}</span>
                           </div>
                         </div>
                       </div>
@@ -419,15 +423,15 @@ const Recap: React.FC = () => {
                         <div
                           className="bg-green-600 opacity-80 h-full rounded-l-full"
                           style={{
-                            width: `${(profileData?.topFiveClasses[section].wins / 
-                              (profileData?.topFiveClasses[section].wins + profileData?.topFiveClasses[section].losses)) * 100}%`,
+                            width: `${(profileData?.topFiveClasses[index].wins / 
+                              (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
                           }}
                         ></div>
                         <div
                           className="bg-red-600 opacity-80 h-full rounded-r-full"
                           style={{
-                            width: `${(profileData?.topFiveClasses[section].losses / 
-                              (profileData?.topFiveClasses[section].wins + profileData?.topFiveClasses[section].losses)) * 100}%`,
+                            width: `${(profileData?.topFiveClasses[index].losses / 
+                              (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
                           }}
                         ></div>
                       </div>
@@ -436,10 +440,10 @@ const Recap: React.FC = () => {
                     <div className="w-full flex justify-center items-center">
                       {/* Damage / Heals */}
                       <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[section].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[section].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
+                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
+                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
                           <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
-                            <span className="font-bold">{profileData?.topFiveClasses[section].class_name ==="medic"? Number(profileData?.topFiveClasses[section].healing).toLocaleString(): Number(profileData?.topFiveClasses[section].damage).toLocaleString()}</span>
+                            <span className="font-bold">{profileData?.topFiveClasses[index].class_name ==="medic"? Number(profileData?.topFiveClasses[index].healing).toLocaleString(): Number(profileData?.topFiveClasses[index].damage).toLocaleString()}</span>
                           </div>
                         </div>
                     </div>
