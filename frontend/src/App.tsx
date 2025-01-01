@@ -7,7 +7,7 @@ import Navbar from "./components/Navbar";
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="min-h-screen text-base-content relative bg-cover bg-center bg-topo-light dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7">
+      <div className="min-h-screen text-base-content relative bg-cover bg-center bg-lightscale-3 dark:bg-warmscale-7">
         {/* Navbar */}
         <Navbar />
 

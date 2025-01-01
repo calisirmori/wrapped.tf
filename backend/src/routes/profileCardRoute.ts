@@ -6,7 +6,7 @@ const profileCardRouter = Router();
 import { query } from "../db"; // Assuming you have a database module
 
 profileCardRouter.get(
-    "/profile-card/:id64",
+    "/card/:id64",
     async (req: Request<{ id64: string }>, res: Response): Promise<void> => {
       const { id64 } = req.params;
 

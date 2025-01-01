@@ -104,7 +104,7 @@ app.get(
     "/auth/steam/return",
     passport.authenticate("steam", { failureRedirect: FRONTEND_URL }),
     (req: any , res: any) => {
-        
+
       if (req.user) {
         // Set a non-sensitive cookie
         res.cookie('userid', req.user, { 
@@ -116,8 +116,8 @@ app.get(
         });
       }
 
-      // Redirect to the frontend
-      res.redirect(FRONTEND_URL);
+      // Redirect to the recap
+      res.redirect(FRONTEND_URL + '/recap/' + req.user.id );
     }
   );
 
@@ -150,16 +150,11 @@ app.get("/auth/user", (req, res) => {
   }
 });
 
-// ==================== TEST ROUTE =====================
-app.get("/test", (req, res) => {
-  res.json({ message: "Hello from /test endpoint!" });
-});
-
 // ==================== PROFILE ROUTES ==================
 app.use("/profile", profileCardRouter);
 
 // Route to get profile data
-app.get("/api/profile/:id64", async (req, res) => {
+app.get("/profile/:id64", async (req, res) => {
   const id64 = req.params.id64;
 
   try {
@@ -313,20 +308,6 @@ app.get("/api/profile/:id64", async (req, res) => {
     console.error("Error fetching profile data:", error);
     res.status(500).json({ error: "Failed to fetch profile data" });
   }
-});
-
-app.get("/debug/session", (req, res) => {
-  res.json({ session: req.session });
-});
-
-app.get("/set-test-cookie", (req, res) => {
-  res.cookie("testCookie", "testValue", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    domain: ".wrapped.tf",
-  });
-  res.send("Cookie set!");
 });
 
 app.listen(5000, () => console.log("Server running on port 5000"));
