@@ -214,7 +214,7 @@ const Recap: React.FC = () => {
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
-            <div className="text-4xl mx-2">Overview</div>
+            <div className="text-4xl mx-2">2024 Overview</div>
             <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
           </div>
           <div className="w-full h-full overflow-hidden grid xl:grid-cols-2 max-xl:grid-cold-1  xl:grid-rows-2 max-xl:grid-rows-4 p-2 xl:gap-4 max-xl:gap-2">
