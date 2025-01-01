@@ -11,7 +11,7 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
     ssl: {
-        ca: process.env.CA_CERT,
+        ca: process.env.NODE_ENV === "production" ? process.env.CA_CERT : fs.readFileSync("./ca-certificate.crt"),
         rejectUnauthorized: true, 
     },
 });

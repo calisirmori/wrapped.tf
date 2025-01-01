@@ -37,8 +37,8 @@ const app = express();
 // CORS
 app.use(
   cors({
-    origin: allowedOrigin,
-    credentials: true,
+    origin: "*",
+    credentials: false,
   })
 );
 

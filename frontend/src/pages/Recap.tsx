@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { toPng } from 'html-to-image';
+import "./RecapCard.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -13,13 +14,32 @@ const Recap: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   //Image Generation
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const profileCardRef = useRef<HTMLDivElement>(null);
+  const recapRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadImage = async () => {
+    if (recapRef.current) {
+      try {
+        const dataUrl = await toPng(recapRef.current, {
+          width: 800,
+          height: 800,
+          canvasWidth: 800,
+          canvasHeight: 800,
+        });
+
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "recap.png";
+        link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
+      }
+    }
+  };
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/profile/${id64}`);
+      const response = await fetch(process.env.NODE_ENV === "production" ? `/profile/${id64}` : `http://localhost:5000/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile data");
       const data = await response.json();
 
@@ -35,48 +55,6 @@ const Recap: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Load recap-card.html and inject into DOM
-  const loadRecapCardHTML = async () => {
-    try {
-      const response = await fetch("/recap-card.html"); // Fetch the HTML file from the public folder
-      if (!response.ok) throw new Error("Failed to load recap-card.html");
-      const html = await response.text();
-
-      if (profileCardRef.current) {
-        profileCardRef.current.innerHTML = html;
-
-        // Populate placeholders with profile data
-        const avatar = profileCardRef.current.querySelector("#avatar") as HTMLImageElement;
-        const name = profileCardRef.current.querySelector("#name") as HTMLElement;
-        const matches = profileCardRef.current.querySelector("#matches") as HTMLElement;
-        const hours = profileCardRef.current.querySelector("#hours") as HTMLElement;
-
-        if (profileData) {
-          avatar.src = `https://avatars.fastly.steamstatic.com/${profileData.avatar}_full.jpg`;
-          name.textContent = profileData.name || "Player Name";
-          matches.textContent = `Games Played: ${profileData.matches_played || 0}`;
-          hours.textContent = `Hours Played: ${(profileData.time_played / 3600).toFixed(1) || 0}`;
-        }
-      }
-    } catch (error) {
-      console.error("Error loading recap-card.html:", error);
-    }
-  };
-
-  // Generate image from the HTML
-  const generateImage = async () => {
-    if (profileCardRef.current) {
-      try {
-        const dataUrl = await toPng(profileCardRef.current, { backgroundColor: "#fff" });
-        setImageDataUrl(dataUrl);
-      } catch (error) {
-        console.error("Error generating image:", error);
-      }
-    }
-  };
-  
-  console.log(imageDataUrl);
 
   const matchesPlayed = new Array(12).fill(0); // Initialize an array for all 12 months with 0
 
@@ -183,18 +161,6 @@ const Recap: React.FC = () => {
     }
   }, [id64]);
 
-  useEffect(() => {
-    if (profileData) {
-      loadRecapCardHTML();
-    }
-  }, [profileData]);
-
-  useEffect(() => {
-    if (profileCardRef.current) {
-      generateImage();
-    }
-  }, [profileCardRef]);
-
   // Update the tab title dynamically when profileData changes
   useEffect(() => {
     if (id64 && profileData?.steamInfo?.[id64]?.name) {
@@ -216,7 +182,7 @@ const Recap: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
         <span className="loading loading-spinner loading-sm"></span>
       </div>
     );
@@ -224,7 +190,7 @@ const Recap: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
         <div className="text-error text-4xl font-londrina">{error}</div>
       </div>
     );
@@ -233,8 +199,8 @@ const Recap: React.FC = () => {
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
       {/* Overview */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -360,8 +326,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Most Played Classes New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -487,8 +453,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Most Played Maps New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen  w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -572,8 +538,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Most Played Teammate New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -654,8 +620,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Most Played Oponents New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -736,8 +702,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Playing Trends New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
             <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
@@ -753,8 +719,8 @@ const Recap: React.FC = () => {
       </div>
 
       {/* Best Teammates & Enemies New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
@@ -769,7 +735,7 @@ const Recap: React.FC = () => {
             </div>
           </div>
 
-            <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
+          <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
               {/* Teammates */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
                 {[0, 1, 2].map((section) => (
@@ -914,17 +880,15 @@ const Recap: React.FC = () => {
               </div>
                 </div>
               
-            </div>
-          
-
+          </div>
 
           <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
         </div>
       </div>
 
-      {/* Best Teammates & Enemies New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+      {/* Worst Teammates & Enemies New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
@@ -1090,29 +1054,117 @@ const Recap: React.FC = () => {
       
       {/* Share */}
       <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark font-londrina bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 ">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
             <div className="w-full h-fit flex justify-center items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
-              <div className="text-4xl mx-2">Download & Share</div></div>
-              <div className="flex flex-col items-center justify-center h-1/3">
-              {/* Recap Card */}
-              <div
-                ref={profileCardRef}
-                className="h-full w-full"
-              ></div>
-
-              {/* Download Button */}
-              {imageDataUrl && (
-                <div className="mt-4">
-                  <a
-                    href={imageDataUrl}
-                    download="profile-recap.png"
-                    className="px-4  py-2 bg-purple-500 text-white rounded"
+              <div className="text-4xl mx-2 mb-3">Download & Share</div></div>
+              <div className="flex flex-col items-center justify-center w-fit h-fit">
+                {/* Recap Card */}
+                <div className=" lg:scale-[0.8] lg:-m-[80px] md:scale-[0.7] md:-m-[120px] sm:scale-[0.6] sm:-m-[160px] max-md:scale-[0.4] max-md:-m-[240px]" >
+                  <div
+                    ref={recapRef}
+                    className="w-[800px] h-[800px] border-4 border-tf-orange bg-white rounded-md shadow-lg flex flex-col justify-center items-center"
                   >
-                    Download Image
-                  </a>
+                    <div className="relative h-full w-full bg-warmscale-7 bg-topo-dark">
+                      <div className="w-full h-full absolute bg-black bg-opacity-50"></div>
+                      <div className="line top"></div>
+                      <div className="content"></div>
+                      <div className="line bottom"></div>
+
+                      <div className="moretf-logo"></div>
+                      <div className="text tf2wrapped">#TF2Wrapped</div>
+                      <div className="text tf2wrapped-small-text">My 2024 more.tf wrapped</div>
+
+                      <div className="line bottom-left"></div>
+                      <div className="text bottom-left">Get yours at <span>wrapped.tf</span></div>
+
+                      <div className="flex justify-center items-center absolute right-[4%] top-[5%] gap-2 bg-tf-orange p-1 rounded-sm">
+                          <img src={`https://avatars.fastly.steamstatic.com/${ id64 && profileData?.steamInfo[id64]?.avatar}_full.jpg`} alt="icon" className="card-icon" />
+                          <span className=" font-istok text-white font-semibold">{id64 && profileData?.steamInfo[id64]?.name}</span>
+                      </div>
+
+                      <div className="text minutes-played-header">MINUTES PLAYED</div>
+                      <div className="text that-is">THAT'S:</div>
+                      <div className="text key-insights">KEY INSIGHTS</div>
+
+                      <div className="text minutes-played">{Math.round(profileData?.general[0].time_played/60).toLocaleString()}</div>
+                      <div className="text movies-missed">movies missed</div>
+                      <div className="card movies-missed">{Math.round(profileData?.general[0].time_played/60/90).toLocaleString()}</div>
+
+                      <div className="text hours-played">total hours</div>
+                      <div className="card hours-played">{Math.round(profileData?.general[0].time_played/60/60).toLocaleString()}</div>
+
+                      <div className="text top-map-header">TOP MAP</div>
+                      <div className="text top-map">{profileData?.topFiveMaps[0].map_name.toUpperCase()}</div>
+
+                      <div className="text top-class-header">TOP CLASS</div>
+                      <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
+
+                      <div className="rectangle">
+                          <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
+                      </div>
+                      <div className="line map-1"></div>
+                      <div className="line map-2"></div>
+                      <div className="line map-3"></div>
+
+                      <div className="stat map-1">
+                          <div className="value">{(Number(profileData?.topFiveMaps[0].time_played) /60 /60).toFixed(1)}{" "}hrs</div>
+                          <div className="textbox">Playtime</div>
+                      </div>
+
+                      <div className="stat map-2">
+                          <div className="value">{Math.round(profileData?.topFiveMaps[0].wins / 
+                                (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses)*100)}%</div>
+                          <div className="textbox">W/L Ratio</div>
+                      </div>
+
+                      <div className="stat map-3">
+                          <div className="value">{profileData?.topFiveMaps[0].matches_played}</div>
+                          <div className="textbox">Matches</div>
+                      </div>
+
+                      <div className="line class-1"></div>
+                      <div className="line class-2"></div>
+                      <div className="line class-3"></div>
+
+                      <div className="stat class-1">
+                          <div className="textbox">Playtime</div>
+                          <div className="value">{(Number(profileData?.topFiveClasses[0].time_played) /60 /60).toFixed(1)}{" "}hrs</div>
+                      </div>
+
+                      <div className="stat class-2">
+                          <div className="textbox">W/L Ratio</div>
+                          <div className="value">{Math.round(profileData?.topFiveClasses[0].wins / 
+                                (profileData?.topFiveClasses[0].wins + profileData?.topFiveClasses[0].losses)*100)}%</div>
+                      </div>
+
+                      <div className="stat class-3">
+                          <div className="textbox">Matches</div>
+                          <div className="value">{profileData?.topFiveClasses[0].matches_played}</div>
+                      </div>
+
+                      <div className="rectangle-class">
+                          <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="Demoman"/>
+                      </div>
+
+                      <div className="text kda">KDA</div>
+                      <div className="text kda-value">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
+                      <div className="text win-percent">WIN %</div>
+                      <div className="text win-percent-value">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
+
+                      <div className="text games">GAMES</div>
+                      <div className="text games-value">{profileData.general[0].matches_played}</div>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Download Button */}
+                <button
+                  onClick={handleDownloadImage}
+                  className="mt-6 px-4 py-2 bg-tf-orange text-warmscale-5 rounded hover:scale-110 duration-100 shadow-md"
+                >
+                  Download Recap
+                </button>
             </div>
           </div>
         </div>

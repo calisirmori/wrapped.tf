@@ -8,7 +8,8 @@ module.exports = {
         'topo-light': "url('/topo-background-light.svg')",
       },
       fontFamily: {
-        londrina: ['"Londrina Solid"', 'cursive'], // Fallback to cursive
+        londrina: ['"Londrina Solid"', 'cursive'],
+        istok: ['"Istok Web"', 'cursive'], // Fallback to cursive
       },
       fontSize: {
         clamp: "clamp(1rem, 5vw, 2.6rem)",
