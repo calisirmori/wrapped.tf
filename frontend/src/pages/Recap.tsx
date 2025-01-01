@@ -191,7 +191,8 @@ const Recap: React.FC = () => {
   if (error) {
     return (
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="text-error text-4xl font-londrina">{error}</div>
+        <div className="text-error text-3xl font-londrina">{error}</div>
+        <div className="text-error text-4xl font-londrina">please try refreshing</div>
       </div>
     );
   }
