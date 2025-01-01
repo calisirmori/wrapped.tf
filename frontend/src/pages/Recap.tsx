@@ -196,6 +196,14 @@ const Recap: React.FC = () => {
     );
   }
 
+  if (profileData?.general.length === 0) {
+    return (
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="text-error text-4xl font-londrina">NO GAMES IN 2024</div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
       {/* Overview */}
