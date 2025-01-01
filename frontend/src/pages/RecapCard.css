@@ -201,7 +201,8 @@
     font-weight: 700;
     top: calc(42%);
     right: 4%;
-    font-size: 70px;
+    font-size: clamp(20px, 5vw, 70px);
+    width: 250px;
     text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
   }
 

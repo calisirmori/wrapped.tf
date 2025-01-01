@@ -1104,7 +1104,10 @@ const Recap: React.FC = () => {
                       <div className="card hours-played">{Math.round(profileData?.general[0].time_played/60/60).toLocaleString()}</div>
 
                       <div className="text top-map-header">TOP MAP</div>
-                      <div className="text top-map">{profileData?.topFiveMaps[0].map_name.toUpperCase()}</div>
+                      <div className="text-tf-orange absolute right-[4%] top-[41%] w-[300px]" style={{
+                        fontSize: `min(calc(600px / ${profileData?.topFiveMaps[0].map_name.length || 1}), 70px)`,
+                        textAlign: "right", // Ensures text remains centered
+                      }}>{profileData?.topFiveMaps[0].map_name.toUpperCase()}</div>
 
                       <div className="text top-class-header">TOP CLASS</div>
                       <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
