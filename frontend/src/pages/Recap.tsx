@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { toPng } from 'html-to-image';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -10,12 +11,15 @@ const Recap: React.FC = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [profileCardImage, setProfileCardImage] = useState<any>(null);
+
+  //Image Generation
+  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const profileCardRef = useRef<HTMLDivElement>(null);
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://api.wrapped.tf/profile/${id64}`);
+      const response = await fetch(`http://localhost:5000/profile/${id64}`);
       if (!response.ok) throw new Error("Failed to fetch profile data");
       const data = await response.json();
 
@@ -32,20 +36,47 @@ const Recap: React.FC = () => {
     }
   };
 
-  const fetchProfileCardImage = async () => {
+  // Load recap-card.html and inject into DOM
+  const loadRecapCardHTML = async () => {
     try {
-      const response = await fetch(`https://api.wrapped.tf/profile/card/${id64}`);
-      if (!response.ok) throw new Error("Failed to fetch profile card image");
+      const response = await fetch("/recap-card.html"); // Fetch the HTML file from the public folder
+      if (!response.ok) throw new Error("Failed to load recap-card.html");
+      const html = await response.text();
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
+      if (profileCardRef.current) {
+        profileCardRef.current.innerHTML = html;
 
-      // Set the image URL to display it on the page
-      setProfileCardImage(url);
+        // Populate placeholders with profile data
+        const avatar = profileCardRef.current.querySelector("#avatar") as HTMLImageElement;
+        const name = profileCardRef.current.querySelector("#name") as HTMLElement;
+        const matches = profileCardRef.current.querySelector("#matches") as HTMLElement;
+        const hours = profileCardRef.current.querySelector("#hours") as HTMLElement;
+
+        if (profileData) {
+          avatar.src = `https://avatars.fastly.steamstatic.com/${profileData.avatar}_full.jpg`;
+          name.textContent = profileData.name || "Player Name";
+          matches.textContent = `Games Played: ${profileData.matches_played || 0}`;
+          hours.textContent = `Hours Played: ${(profileData.time_played / 3600).toFixed(1) || 0}`;
+        }
+      }
     } catch (error) {
-      console.error("Error fetching profile card image:", error);
+      console.error("Error loading recap-card.html:", error);
     }
   };
+
+  // Generate image from the HTML
+  const generateImage = async () => {
+    if (profileCardRef.current) {
+      try {
+        const dataUrl = await toPng(profileCardRef.current, { backgroundColor: "#fff" });
+        setImageDataUrl(dataUrl);
+      } catch (error) {
+        console.error("Error generating image:", error);
+      }
+    }
+  };
+  
+  console.log(imageDataUrl);
 
   const matchesPlayed = new Array(12).fill(0); // Initialize an array for all 12 months with 0
 
@@ -149,9 +180,20 @@ const Recap: React.FC = () => {
   useEffect(() => {
     if (id64) {
       fetchProfileData();
-      fetchProfileCardImage();
     }
   }, [id64]);
+
+  useEffect(() => {
+    if (profileData) {
+      loadRecapCardHTML();
+    }
+  }, [profileData]);
+
+  useEffect(() => {
+    if (profileCardRef.current) {
+      generateImage();
+    }
+  }, [profileCardRef]);
 
   // Update the tab title dynamically when profileData changes
   useEffect(() => {
@@ -330,7 +372,7 @@ const Recap: React.FC = () => {
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
@@ -457,7 +499,7 @@ const Recap: React.FC = () => {
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
@@ -542,7 +584,7 @@ const Recap: React.FC = () => {
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
@@ -624,7 +666,7 @@ const Recap: React.FC = () => {
           {/* Cards */}
           <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                 <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
@@ -731,7 +773,7 @@ const Recap: React.FC = () => {
               {/* Teammates */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
                 {[0, 1, 2].map((section) => (
-                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
@@ -805,7 +847,7 @@ const Recap: React.FC = () => {
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
                 {[0, 1, 2].map((section) => (
-                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
@@ -901,7 +943,7 @@ const Recap: React.FC = () => {
               {/* Teammates */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
                 {[0, 1, 2].map((section) => (
-                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
@@ -975,7 +1017,7 @@ const Recap: React.FC = () => {
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
                 {[0, 1, 2].map((section) => (
-                  <div className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
                     <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
@@ -1051,13 +1093,27 @@ const Recap: React.FC = () => {
         <div className="max-xl:h-5/6 max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 ">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
             <div className="w-full h-fit flex justify-center items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
-                <div className="text-4xl mx-2">Download & Share</div>
+              <div className="text-4xl mx-2">Download & Share</div></div>
+              <div className="flex flex-col items-center justify-center h-1/3">
+              {/* Recap Card */}
+              <div
+                ref={profileCardRef}
+                className="h-full w-full"
+              ></div>
+
+              {/* Download Button */}
+              {imageDataUrl && (
+                <div className="mt-4">
+                  <a
+                    href={imageDataUrl}
+                    download="profile-recap.png"
+                    className="px-4  py-2 bg-purple-500 text-white rounded"
+                  >
+                    Download Image
+                  </a>
+                </div>
+              )}
             </div>
-            <img
-              src={profileCardImage}
-              alt="Profile Card"
-              className=""
-            />
           </div>
         </div>
       </div>

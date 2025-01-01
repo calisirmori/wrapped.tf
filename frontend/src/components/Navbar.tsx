@@ -91,9 +91,9 @@ const Navbar: React.FC = () => {
             <a
               // Use VITE_API_URL + /auth/steam
               href={`${import.meta.env.VITE_API_URL}/auth/steam`}
-              className="btn btn-primary"
+              className=""
             >
-              Login with Steam
+              <img src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_large_noborder.png" alt="steam login"/>
             </a>
           )}
         </div>
