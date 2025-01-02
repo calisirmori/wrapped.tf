@@ -723,7 +723,7 @@ const Recap: React.FC = () => {
           <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
             <Bar data={data} options={options} />
           </div>
-          <div className="text-warmscale-5 dark:text-lightscale-3">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>
+          {profileData?.dailyActivity.length !== 0 && <div className="text-warmscale-5 dark:text-lightscale-3">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>}
           <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
         </div>
       </div>
