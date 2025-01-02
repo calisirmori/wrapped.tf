@@ -87,6 +87,15 @@ const Navbar: React.FC = () => {
                   </a>
                 </li>
                 <li>
+                  <a
+                    href="https://buymeacoffee.com/moretf"
+                    className="flex items-center space-x-2"
+                  >
+                    <span>☕</span>
+                    <span>Buy Me a Coffee</span>
+                  </a>
+                </li>
+                <li>
                   <button
                     onClick={handleLogout}
                     className="flex items-center space-x-2"
