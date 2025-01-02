@@ -66,7 +66,7 @@ const Recap: React.FC = () => {
     });
   }
 
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'September', 'October', 'November', 'December']
+  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   const data = {
     labels: labels,
     datasets: [
@@ -280,7 +280,7 @@ const Recap: React.FC = () => {
                   </div>
                   <div className="flex flex-col justify-center items-center">
                     <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].wins / profileData?.topFiveMaps[0].matches_played * 100).toFixed(0)}%</div>
+                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses) * 100).toFixed(0)}%</div>
                   </div>
                   <div className="flex flex-col justify-center items-center">
                     <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
