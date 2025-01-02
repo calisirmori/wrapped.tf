@@ -286,6 +286,47 @@ app.get("/profile/:id64", async (req, res) => {
       {}
     );
 
+    // Find id64s that are not in the database
+    const missingId64s = id64Array.filter((id) => !steamInfo[id]);
+
+    // Query Steam API for missing id64s
+if (missingId64s.length > 0) {
+  const steamApiResponses = await Promise.all(
+    missingId64s.map(async (missingId64) => {
+      try {
+        const response = await fetch(
+          `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAMKEY}&steamids=${missingId64}`
+        );
+        const data = await response.json();
+        const player = data.response.players[0];
+        
+        // Extract avatar hash from the avatar URL
+        const avatarHash = player.avatar
+          .replace('https://avatars.steamstatic.com/', '')
+          .replace('.jpg', '');
+
+        return {
+          id64: missingId64,
+          avatar: avatarHash, // Use the extracted hash
+          name: player.personaname,
+          last_updated: new Date().toISOString(),
+          rgl_name: null, // Assuming RGL name isn't in Steam API
+        };
+      } catch (error) {
+        console.error(`Error fetching Steam data for id64 ${missingId64}:`, error);
+        return null;
+      }
+    })
+  );
+
+  // Add valid responses to steamInfo
+  steamApiResponses.forEach((player) => {
+    if (player) {
+      steamInfo[player.id64] = player;
+    }
+  });
+}
+
     // Combine results into a single response object
     const responseData = {
       general: general.rows,
