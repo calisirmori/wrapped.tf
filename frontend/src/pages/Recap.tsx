@@ -182,7 +182,7 @@ const Recap: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
         <span className="loading loading-spinner loading-sm"></span>
       </div>
     );
@@ -190,7 +190,7 @@ const Recap: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
         <div className="text-error text-3xl font-londrina">{error}</div>
         <div className="text-error text-4xl font-londrina">please try refreshing</div>
       </div>
@@ -199,9 +199,9 @@ const Recap: React.FC = () => {
 
   if (profileData?.general.length === 0) {
     return (
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
         <div className="text-error text-4xl font-londrina">NO GAMES IN 2024</div>
-        <a href="/" className="btn bg-lightscale-3 dark:bg-warmscale-8 text-warmscale-7 dark:text-lightscale-4 border-warmscale-6 dark:border-lightscale-6">View Global Stats Here</a>
+        <a href="/" className="btn bg-lightmode-background dark:bg-darkmode-background text-lightmode-primary dark:text-darkmode-primary border-lightmode-border dark:border-darkmode-border">View Global Stats Here</a>
       </div>
     );
   }
@@ -209,98 +209,93 @@ const Recap: React.FC = () => {
   return (
     <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
       {/* Overview */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina gap-1 md:gap-2">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">2024 Overview</div>
-            <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-auto bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
-          <div className="w-full h-full overflow-hidden grid xl:grid-cols-2 max-xl:grid-cold-1  xl:grid-rows-2 max-xl:grid-rows-4 p-2 xl:gap-4 max-xl:gap-2">
-          <div className="grid md:grid-cols-5 max-md:grid-rows-4 p-3 w-full xl:col-span-full max-xl:row-span-2 h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+          <div className="w-full h-full px-4 md:px-6 lg:px-8 overflow-hidden grid xl:grid-cols-2 max-xl:grid-cold-1  xl:grid-rows-2 max-xl:grid-rows-4 p-2 xl:gap-4 max-xl:gap-2">
+          <div className="grid md:grid-cols-5 max-md:grid-rows-4 p-3 w-full xl:col-span-full max-xl:row-span-2 h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
               <div className="flex flex-col justify-center items-center p-2 max-md:hidden">
-                <div className="w-3/4">
+                <a className="w-3/4" href={`https://more.tf/profile/${profileData?.general[0].id64}`} target="_blank">
                   <img
                     src={`https://avatars.fastly.steamstatic.com/${
                       id64 && profileData?.steamInfo[id64]?.avatar
                     }_full.jpg`}
                     alt="Character"
-                    className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl shadow-inner"
+                    className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl transform transition-transform duration-300 hover:scale-110"
                   />
-                </div>
+                </a>
               </div>
-              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
-                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{profileData?.general[0].matches_played ? formatNumber(profileData.general[0].matches_played) : "0"}</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">GAMES</div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{profileData?.general[0].matches_played ? formatNumber(profileData.general[0].matches_played) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">GAMES</div>
               </div>
-              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
-                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{profileData?.general[0].time_played ? formatNumber((profileData.general[0].time_played/60/60).toFixed(0)) : "0"}</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">HOURS</div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{profileData?.general[0].time_played ? formatNumber((profileData.general[0].time_played/60/60).toFixed(0)) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">HOURS</div>
               </div>
-              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
-                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">WIN%</div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">WIN%</div>
               </div>
-              <div className="flex md:flex-col justify-center items-center font-black select-none border-lightscale-5 dark:border-warmscale-6 max-md:gap-2">
-                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightscale-9 dark:text-tf-orange-dark">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-warmscale-5 dark:text-lightscale-3">KDA</div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none border-lightmode-border dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">KDA</div>
               </div>
             </div>
-            <div className="w-full p-2 h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+            <div className="w-full p-2 h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
               <div className="grid xl:grid-rows-2 max-xl:grid-rows-1 max-xl:grid-cols-5 h-full w-full items-center">
-                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6 max-md:mt-5 md:gap-2 max-xl:col-span-2">
-                <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
-                  {/* TOP MAP Title */}
-                  <div className="text-warmscale-1 dark:text-lightscale-6 font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">
-                    TOP MAP
-                  </div>
-
-                  <div className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveMaps[1]?.map_name?.toUpperCase() || "MAP NAME"}</div>
-                  {/* Dynamic Map Name */}
-                  <div
-                    className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none max-md:hidden "
+                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6  md:gap-2 max-xl:col-span-2">
+                  <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
+                    {/* TOP MAP Title */}
+                    <div className="text-lightmode-secondary dark:text-darkmode-secondary font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">TOP MAP</div>
+                    <div className="text-lightmode-primary dark:text-darkmode-primary font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveMaps[0]?.map_name?.toUpperCase() || "MAP NAME"}</div>
+                    {/* Dynamic Map Name */}
+                    <div
+                    className="text-lightmode-primary dark:text-darkmode-primary font-bold text-center leading-none md:inline max-md:hidden"
                     style={{
                       fontSize: `min(calc(20vw / ${profileData?.topFiveMaps[0].map_name.length || 1}), 4rem)`, // Adjust size dynamically based on text length
                       width: "100%", // Stretches to fill available width
                       textAlign: "center", // Ensures text remains centered
-                    }}
-                  >
-                    {profileData?.topFiveMaps[0]?.map_name?.toUpperCase() || "MAP NAME"}
+                    }}>{profileData?.topFiveMaps[0]?.map_name?.toUpperCase() || "MAP NAME"}</div>
                   </div>
-                </div>
-                  <div className="md:p-1 flex justify-center items-center max-xl:order-1 w-full h-full max-md:pr-2">
-                    <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="" className="rounded-xl w-full h-full max-h-[14vh] object-cover" />
+                  <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
+                    <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
+                      <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="" className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 max-xl:col-span-3">
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm text-lightscale-6 dark:text-lightscale-8">hrs</span></div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm text-lightmode-tertiary dark:text-darkmode-tertiary">hrs</span></div>
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses) * 100).toFixed(0)}%</div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses) * 100).toFixed(0)}%</div>
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{profileData?.topFiveMaps[0].matches_played}</div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{profileData?.topFiveMaps[0].matches_played}</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="w-full p-2 h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+            <div className="w-full p-2 h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
               <div className="grid xl:grid-rows-2 max-xl:grid-rows-1 max-xl:grid-cols-5 h-full w-full items-center">
-                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6 max-md:mt-5 md:gap-2 max-xl:col-span-2">
+                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6  md:gap-2 max-xl:col-span-2">
                 <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
-                  {/* TOP MAP Title */}
-                  <div className="text-warmscale-1 dark:text-lightscale-6 font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">
+                  {/* TOP CLASS Title */}
+                  <div className=" text-lightmode-secondary dark:text-darkmode-secondary font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">
                     TOP CLASS
                   </div>
-                  <div className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveMaps[1]?.map_name?.toUpperCase() || "MAP NAME"}</div>
+                  <div className=" text-lightmode-primary dark:text-darkmode-primary font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveClasses[0]?.class_name?.toUpperCase() || "MAP NAME"}</div>
                   {/* Dynamic Class Name */}
                     <div
-                    className="text-warmscale-5 dark:text-lightscale-2 font-bold text-center leading-none max-md:hidden "
+                    className=" text-lightmode-primary dark:text-darkmode-primary font-bold text-center leading-none max-md:hidden "
                     style={{
                       fontSize: `min(calc(20vw / ${profileData?.topFiveClasses[0].class_name.length || 1}), 4rem)`, // Adjust size dynamically based on text length
                       width: "100%", // Stretches to fill available width
@@ -310,67 +305,72 @@ const Recap: React.FC = () => {
                       {profileData?.topFiveClasses[0].class_name?.toUpperCase() || "MAP NAME"}
                     </div>
                   </div>
-                  <div className="md:p-1 flex justify-center items-center max-xl:order-1 w-full h-full max-md:pr-2">
-                    <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full max-h-[14vh] object-cover" />
+                  <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
+                    <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
+                      <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full flex-auto object-cover" />
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 max-xl:col-span-3">
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm text-lightscale-6 dark:text-lightscale-8">hrs</span></div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm  text-lightmode-tertiary dark:text-darkmode-tertiary">hrs</span></div>
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].wins / profileData?.topFiveClasses[0].matches_played * 100).toFixed(0)}%</div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].wins / profileData?.topFiveClasses[0].matches_played * 100).toFixed(0)}%</div>
                   </div>
                   <div className="flex flex-col justify-center items-center">
-                    <div className="text-warmscale-1 dark:text-lightscale-6 md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
-                    <div className="text-warmscale-5 dark:text-lightscale-2 text-4xl max-md:text-[8vw]">{profileData?.topFiveClasses[0].matches_played}</div>
+                    <div className=" text-lightmode-secondary dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
+                    <div className=" text-lightmode-primary dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{profileData?.topFiveClasses[0].matches_played}</div>
                   </div>
                 </div>
               </div>
             </div>            
           </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Most Played Classes New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">Most Played Classes</div>
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
           {/* Cards */}
-          <div className={`w-full h-full overflow-hidden grid grid-rows-${profileData?.topFiveClasses.length || 0} p-2 xl:gap-3 max-xl:gap-2`}>
+          <div className={`w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2`}>
             {Array.from({ length: profileData?.topFiveClasses.length || 0 }).map((_,index:any) => (
-              <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{index+1}.</div>
-                <div className="h-full w-fit flex items-center mr-2">
-                  <img
-                    src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
-                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                    alt={`${profileData?.topFiveClasses[index]?.class_name} image`}
-                  />
+              <div key={index} className={`relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg`}>
+                <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50">{index+1}.</div>
+                <div className="relative mr-2 max-md:my-2 after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-darken after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
+                  <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
+                    <img
+                      src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
+                      className="h-full object-cover rounded-tl-xl rounded-br-xl"
+                      alt={`${profileData?.topFiveClasses[index]?.class_name} image`}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
 
                   {/* Class Title */}
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start">
-                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1">
+                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
                         {classes[profileData?.topFiveClasses[index].class_name].toUpperCase()}
                       </h2>
-                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5 ">
-                        {(Number(profileData?.topFiveClasses[index].time_played) /60 /60).toFixed(1)}{" "}hrs
-                      </p>
-                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
-                        {profileData?.topFiveClasses[index].matches_played} matches
-                      </p>
+                      <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
+                        <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary ">
+                          {(Number(profileData?.topFiveClasses[index].time_played) /60 /60).toFixed(1)}{" "}hrs
+                        </p>
+                        <p className="text-sm max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary">
+                          {profileData?.topFiveClasses[index].matches_played} matches
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <div className="grid md:grid-cols-3 max-md:grid-rows-3 col-span-3">
@@ -378,9 +378,9 @@ const Recap: React.FC = () => {
                     <div className="w-full h-full flex justify-center items-center flex-wrap gap-[0.8vw]">
                       {/* Kills */}
                       <div className="flex justify-center items-center md:flex-col">
-                        <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">KDA:</div>
-                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">KILLS</div>
-                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">KDA:</div>
+                        <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">KILLS</div>
+                        <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                           <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].kills)}</span>
                           <span className="md:hidden mx-1">/</span>
                         </div>
@@ -388,8 +388,8 @@ const Recap: React.FC = () => {
 
                       {/* Deaths */}
                       <div className="flex justify-center items-center md:flex-col">
-                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">DEATHS</div>
-                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">DEATHS</div>
+                        <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                           <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].deaths)}</span>
                           <span className="md:hidden mx-1">/</span>
                         </div>
@@ -397,29 +397,29 @@ const Recap: React.FC = () => {
 
                       {/* Assists */}
                       <div className="flex justify-center items-center md:flex-col">
-                        <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">ASSISTS</div>
-                        <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">ASSISTS</div>
+                        <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                           <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].assists)}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* WL index */}
-                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
-                      <div className="flex justify-center items-center md:gap-4">
+                    <div className="w-full flex flex-col justify-center items-center">
+                      <div className="flex justify-center items-center md:gap-4 xl:gap-2">
                         {/* Wins */}
-                        <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm">
                             <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].wins)}</span>
                             <span className="md:hidden mx-1">/</span>
                           </div>
                         </div>
                         {/* Losses */}
-                        <div className="flex justify-center items-center md:flex-col">
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm">
                             <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].losses)}</span>
                           </div>
                         </div>
@@ -427,14 +427,14 @@ const Recap: React.FC = () => {
                       {/* WL BAR */}
                       <div className="relative h-1.5 w-full flex px-2">
                         <div
-                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.topFiveClasses[index].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                           style={{
                             width: `${(profileData?.topFiveClasses[index].wins / 
                               (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
                           }}
                         ></div>
                         <div
-                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData.topFiveClasses[index].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                           style={{
                             width: `${(profileData?.topFiveClasses[index].losses / 
                               (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
@@ -446,9 +446,9 @@ const Recap: React.FC = () => {
                     <div className="w-full flex justify-center items-center">
                       {/* Damage / Heals */}
                       <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{profileData?.topFiveClasses[index].class_name ==="medic"? Number(profileData?.topFiveClasses[index].healing).toLocaleString(): Number(profileData?.topFiveClasses[index].damage).toLocaleString()}</span>
                           </div>
                         </div>
@@ -458,64 +458,67 @@ const Recap: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Most Played Maps New Style */}
-      <div className="flex flex-col h-screen  w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen  w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-3">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">Most Played Maps</div>
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
           {/* Cards */}
-          <div className={`w-full h-full overflow-hidden grid grid-rows-${profileData?.topFiveMaps.length} p-2 xl:gap-3 max-xl:gap-2`}>
+          <div className={`w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2`}>
             {Array.from({ length: profileData?.topFiveMaps.length || 0 }).map((_,index:any) => (
-              <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{index+1}.</div>
-                <div className="h-full w-fit flex items-center mr-2">
-                  <img
-                    src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
-                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                    alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
-                  />
+              <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{index+1}.</div>
+                <div className="relative mr-2 max-md:my-2 after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
+                  <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
+                    <img
+                      src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
+                      className="grayscale h-full object-cover rounded-tl-xl rounded-br-xl"
+                      alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
                   {/* Map Title */}
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start">
-                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1">
+                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
                         {profileData?.topFiveMaps[index].map_name.toUpperCase()}
                       </h2>
-                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5 ">
-                        {(Number(profileData?.topFiveMaps[index].time_played) /60 /60).toFixed(1)}{" "}hrs
-                      </p>
-                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
-                        {profileData?.topFiveMaps[index].matches_played} matches
-                      </p>
+                      <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
+                        <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary ">
+                          {(Number(profileData?.topFiveMaps[index].time_played) /60 /60).toFixed(1)}{" "}hrs
+                        </p>
+                        <p className="text-sm max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary">
+                          {profileData?.topFiveMaps[index].matches_played} matches
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <div className="flex col-span-3">
                     {/* WL index */}
-                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                    <div className="w-full flex flex-col justify-center items-center">
                       <div className="flex justify-center items-center md:gap-4">
                         {/* Wins */}
-                        <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.topFiveMaps[index].wins)}</span>
                             <span className="md:hidden mx-1">/</span>
                           </div>
                         </div>
                         {/* Losses */}
-                        <div className="flex justify-center items-center md:flex-col">
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.topFiveMaps[index].losses)}</span>
                           </div>
                         </div>
@@ -523,14 +526,14 @@ const Recap: React.FC = () => {
                       {/* WL BAR */}
                       <div className="relative h-1.5 w-full flex px-2">
                         <div
-                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.topFiveMaps[index].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                           style={{
                             width: `${(profileData?.topFiveMaps[index].wins / 
                               (profileData?.topFiveMaps[index].wins + profileData?.topFiveMaps[index].losses)) * 100}%`,
                           }}
                         ></div>
                         <div
-                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData.topFiveMaps[index].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                           style={{
                             width: `${(profileData?.topFiveMaps[index].losses / 
                               (profileData?.topFiveMaps[index].wins + profileData?.topFiveMaps[index].losses)) * 100}%`,
@@ -543,61 +546,60 @@ const Recap: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Most Played Teammate New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">Most Played Teammates</div>
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
           {/* Cards */}
-          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+          <div className="w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`}
-                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    className="aspect-square h-full object-cover rounded-tl-xl rounded-br-xl max-md:py-2"
                     alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} avatar`}
                   />
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
-                  {/* Map Title */}
+                  {/* Player Title */}
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start w-full">
-                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden w-full">
+                      <a className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden w-full hover:underline" href={`https://wrapped.tf/recap/${profileData?.teammates[section].teammate_id64}`} target="_blank">
                         {profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}
-                      </h2>
-                      <p className="text-sm max-md:hidden text-warmscale-2 dark:text-lightscale-5">
+                      </a>
+                      <p className="text-sm max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary">
                         {profileData?.teammates[section].matches_played} matches
                       </p>
                     </div>
                   </div>
                   <div className="flex col-span-3">
                     {/* WL Section */}
-                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                    <div className="w-full flex flex-col justify-center items-center">
                       <div className="flex justify-center items-center md:gap-4">
                         {/* Wins */}
-                        <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.teammates[section].wins)}</span>
                             <span className="md:hidden mx-1">/</span>
                           </div>
                         </div>
                         {/* Losses */}
-                        <div className="flex justify-center items-center md:flex-col">
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.teammates[section].losses)}</span>
                           </div>
                         </div>
@@ -605,14 +607,14 @@ const Recap: React.FC = () => {
                       {/* WL BAR */}
                       <div className="relative h-1.5 w-full flex px-2">
                         <div
-                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.teammates[section].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                           style={{
                             width: `${(profileData?.teammates[section].wins / 
                               (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
                           }}
                         ></div>
                         <div
-                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.teammates[section].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                           style={{
                             width: `${(profileData?.teammates[section].losses / 
                               (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
@@ -625,61 +627,60 @@ const Recap: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Most Played Oponents New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">Most Played Opponents</div>
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
           {/* Cards */}
-          <div className="w-full h-full overflow-hidden grid grid-rows-5 p-2 xl:gap-3 max-xl:gap-2">
+          <div className="w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2">
             {[0, 1, 2, 3, 4].map((section) => (
-              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`}
-                    className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                    className="h-full aspect-square object-cover rounded-tl-xl rounded-br-xl"
                     alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name} avatar`}
                   />
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
-                  {/* Map Title */}
+                  {/* Opponent Title */}
                   <div className="w-full h-full">
                     <div className="h-full w-full text-left flex flex-col justify-center items-start">
-                      <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                      <a className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden w-full hover:underline" href={`https://wrapped.tf/recap/${profileData?.enemies[section].enemy_id64}`} target="_blank">
                         {profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}
-                      </h2>
-                      <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                      </a>
+                      <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary">
                         {profileData?.enemies[section].matches_played} matches
                       </p>
                     </div>
                   </div>
                   <div className="flex col-span-3">
                     {/* WL Section */}
-                    <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                    <div className="w-full flex flex-col justify-center items-center">
                       <div className="flex justify-center items-center md:gap-4">
                         {/* Wins */}
-                        <div className="flex justify-center items-center md:flex-col ">
-                          <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.enemies[section].wins)}</span>
                             <span className="md:hidden mx-1">/</span>
                           </div>
                         </div>
                         {/* Losses */}
-                        <div className="flex justify-center items-center md:flex-col">
-                          <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                          <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                             <span className="font-bold">{formatNumber(profileData?.enemies[section].losses)}</span>
                           </div>
                         </div>
@@ -687,14 +688,14 @@ const Recap: React.FC = () => {
                       {/* WL BAR */}
                       <div className="relative h-1.5 w-full flex px-2">
                         <div
-                          className="bg-green-600 opacity-80 h-full rounded-l-full"
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.enemies[section].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                           style={{
                             width: `${(profileData?.enemies[section].wins / 
                               (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
                           }}
                         ></div>
                         <div
-                          className="bg-red-600 opacity-80 h-full rounded-r-full"
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.enemies[section].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                           style={{
                             width: `${(profileData?.enemies[section].losses / 
                               (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
@@ -707,50 +708,52 @@ const Recap: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Playing Trends New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold">
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
             <div className="text-4xl mx-2">Playing Trends</div>
-            <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+            <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
-          <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+          <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
             <Bar data={data} options={options} />
           </div>
-          {profileData?.dailyActivity.length !== 0 && <div className="text-warmscale-5 dark:text-lightscale-3">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>}
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="w-full h-fit flex text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-2 items-center">
+            <div className="h-[2px] w-4 flex-auto bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
+            {profileData?.dailyActivity.length !== 0 && <div className="text-lightmode-primary dark:text-darkmode-primary">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>}
+            <div className="h-[2px] w-4 flex-auto bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
         </div>
       </div>
 
       {/* Best Teammates & Enemies New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
         <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
               <div className="text-4xl mx-2">Best Winrate With</div>
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
             </div>
             <div className="flex w-full justify-center items-center max-md:hidden">
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
               <div className="text-4xl mx-2">Best Winrate Against</div>
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
             </div>
           </div>
 
           <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
               {/* Teammates */}
-              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-lightmode-primary dark:border-darkmode-primary">
                 {[0, 1, 2].map((section) => (
-                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`}
@@ -759,34 +762,34 @@ const Recap: React.FC = () => {
                       />
                     </div>
                     <div className="grid grid-cols-4 w-full h-full gap-2">
-                      {/* Map Title */}
+                      {/* Player Title */}
                       <div className="w-full h-full">
                         <div className="h-full w-full text-left flex flex-col justify-center items-start">
-                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.winningTeammates[section].teammate_id64}`} target="_blank">
                             {profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}
-                          </h2>
-                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary">
                             {profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost} matches
                           </p>
                         </div>
                       </div>
                       <div className="flex col-span-3">
                         {/* WL Section */}
-                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                        <div className="w-full flex flex-col justify-center items-center">
                           <div className="flex justify-center items-center md:gap-4">
                             {/* Wins */}
                             <div className="flex justify-center items-center md:flex-col ">
-                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_won)}</span>
                                 <span className="md:hidden mx-1">/</span>
                               </div>
                             </div>
                             {/* Losses */}
                             <div className="flex justify-center items-center md:flex-col">
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_lost)}</span>
                               </div>
                             </div>
@@ -794,14 +797,14 @@ const Recap: React.FC = () => {
                           {/* WL BAR */}
                           <div className="relative h-1.5 w-full flex px-2">
                             <div
-                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.winningTeammates[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                               style={{
                                 width: `${(profileData?.winningTeammates[section].matches_won / 
                                   (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
                               }}
                             ></div>
                             <div
-                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.winningTeammates[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                               style={{
                                 width: `${(profileData?.winningTeammates[section].matches_lost / 
                                   (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
@@ -815,16 +818,16 @@ const Recap: React.FC = () => {
                 ))}
               </div>
                 <div>
-                  <div className="flex w-full justify-center items-center md:hidden text-warmscale-5 dark:text-lightscale-3">
-                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                  <div className="flex w-full justify-center items-center md:hidden text-lightmode-primary dark:text-darkmode-primary">
+                    <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
                     <div className="text-4xl mx-2">Best Winrate Against</div>
-                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                    <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
                   </div>
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
                 {[0, 1, 2].map((section) => (
-                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`}
@@ -836,31 +839,31 @@ const Recap: React.FC = () => {
                       {/* Map Title */}
                       <div className="w-full h-full">
                         <div className="h-full w-full text-left flex flex-col justify-center items-start">
-                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.winningEnemies[section].enemy_id64}`} target="_blank">
                             {profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}
-                          </h2>
-                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary">
                             {profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost} matches
                           </p>
                         </div>
                       </div>
                       <div className="flex col-span-3">
                         {/* WL Section */}
-                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                        <div className="w-full flex flex-col justify-center items-center">
                           <div className="flex justify-center items-center md:gap-4">
                             {/* Wins */}
                             <div className="flex justify-center items-center md:flex-col ">
-                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_won)}</span>
                                 <span className="md:hidden mx-1">/</span>
                               </div>
                             </div>
                             {/* Losses */}
                             <div className="flex justify-center items-center md:flex-col">
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_lost)}</span>
                               </div>
                             </div>
@@ -868,14 +871,14 @@ const Recap: React.FC = () => {
                           {/* WL BAR */}
                           <div className="relative h-1.5 w-full flex px-2">
                             <div
-                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.winningEnemies[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                               style={{
                                 width: `${(profileData?.winningEnemies[section].matches_won / 
                                   (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
                               }}
                             ></div>
                             <div
-                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.winningEnemies[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                               style={{
                                 width: `${(profileData?.winningEnemies[section].matches_lost / 
                                   (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
@@ -892,33 +895,33 @@ const Recap: React.FC = () => {
               
           </div>
 
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
 
       {/* Worst Teammates & Enemies New Style */}
-      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
-          <div className="w-full h-fit flex items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
               <div className="text-4xl mx-2">Worst Winrate With</div>
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
             </div>
             <div className="flex w-full justify-center items-center max-md:hidden">
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
               <div className="text-4xl mx-2">Worst Winrate Against</div>
-              <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
             </div>
           </div>
 
             <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
               {/* Teammates */}
-              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-warmscale-5 dark:border-lightscale-3">
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-lightmode-primary dark:border-darkmode-primary">
                 {[0, 1, 2].map((section) => (
-                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`}
@@ -930,31 +933,31 @@ const Recap: React.FC = () => {
                       {/* Map Title */}
                       <div className="w-full h-full">
                         <div className="h-full w-full text-left flex flex-col justify-center items-start">
-                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.losingTeammates[section].teammate_id64}`} target="_blank">
                             {profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}
-                          </h2>
-                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary">
                             {profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost} matches
                           </p>
                         </div>
                       </div>
                       <div className="flex col-span-3">
                         {/* WL Section */}
-                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                        <div className="w-full flex flex-col justify-center items-center">
                           <div className="flex justify-center items-center md:gap-4">
                             {/* Wins */}
                             <div className="flex justify-center items-center md:flex-col ">
-                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_won)}</span>
                                 <span className="md:hidden mx-1">/</span>
                               </div>
                             </div>
                             {/* Losses */}
                             <div className="flex justify-center items-center md:flex-col">
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_lost)}</span>
                               </div>
                             </div>
@@ -962,14 +965,14 @@ const Recap: React.FC = () => {
                           {/* WL BAR */}
                           <div className="relative h-1.5 w-full flex px-2">
                             <div
-                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.losingTeammates[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                               style={{
                                 width: `${(profileData?.losingTeammates[section].matches_won / 
                                   (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
                               }}
                             ></div>
                             <div
-                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.losingTeammates[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                               style={{
                                 width: `${(profileData?.losingTeammates[section].matches_lost / 
                                   (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
@@ -983,16 +986,16 @@ const Recap: React.FC = () => {
                 ))}
               </div>
                 <div>
-                  <div className="flex w-full justify-center items-center md:hidden text-warmscale-5 dark:text-lightscale-3">
-                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                  <div className="flex w-full justify-center items-center md:hidden text-lightmode-primary dark:text-darkmode-primary">
+                    <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
                     <div className="text-4xl mx-2">Worst Winrate Against</div>
-                    <div className="h-[2px] flex-grow bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+                    <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
                   </div>
                   {/* Enemies */}
               <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
                 {[0, 1, 2].map((section) => (
-                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full bg-lightscale-3/30 dark:bg-warmscale-7/30 backdrop-blur-sm border-2 border-lightscale-5 dark:border-warmscale-6 shadow rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
-                    <div className="absolute bottom-0 left-2 text-warmscale-5 dark:text-lightscale-3 opacity-50 ">{section+1}.</div>
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`}
@@ -1004,31 +1007,31 @@ const Recap: React.FC = () => {
                       {/* Map Title */}
                       <div className="w-full h-full">
                         <div className="h-full w-full text-left flex flex-col justify-center items-start">
-                          <h2 className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-warmscale-5 dark:text-lightscale-3 -my-1 truncate overflow-hidden">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.losingEnemies[section].enemy_id64}`} target="_blank">
                             {profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}
-                          </h2>
-                          <p className="text-sm text-warmscale-2 dark:text-lightscale-5">
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary">
                             {profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost} matches
                           </p>
                         </div>
                       </div>
                       <div className="flex col-span-3">
                         {/* WL Section */}
-                        <div className="w-full flex flex-col justify-center items-center md:mt-1.5">
+                        <div className="w-full flex flex-col justify-center items-center">
                           <div className="flex justify-center items-center md:gap-4">
                             {/* Wins */}
                             <div className="flex justify-center items-center md:flex-col ">
-                              <div className="mr-2 md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_won)}</span>
                                 <span className="md:hidden mx-1">/</span>
                               </div>
                             </div>
                             {/* Losses */}
                             <div className="flex justify-center items-center md:flex-col">
-                              <div className="max-md:hidden text-warmscale-2 dark:text-lightscale-5 xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
-                              <div className="flex items-center text-warmscale-5 dark:text-lightscale-3 xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                              <div className="max-md:hidden  text-lightmode-secondary dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
                                 <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_lost)}</span>
                               </div>
                             </div>
@@ -1036,14 +1039,14 @@ const Recap: React.FC = () => {
                           {/* WL BAR */}
                           <div className="relative h-1.5 w-full flex px-2">
                             <div
-                              className="bg-green-600 opacity-80 h-full rounded-l-full"
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.losingEnemies[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
                               style={{
                                 width: `${(profileData?.losingEnemies[section].matches_won / 
                                   (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
                               }}
                             ></div>
                             <div
-                              className="bg-red-600 opacity-80 h-full rounded-r-full"
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.losingEnemies[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
                               style={{
                                 width: `${(profileData?.losingEnemies[section].matches_lost / 
                                   (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
@@ -1058,15 +1061,15 @@ const Recap: React.FC = () => {
               </div>
                 </div>
             </div>
-          <div className="h-[2px] w-full bg-warmscale-5 dark:bg-lightscale-3 rounded-sm"></div>
+          <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
         </div>
       </div>
       
       {/* Share */}
-      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark font-londrina bg-lightscale-3 dark:bg-warmscale-7 md:p-8 max-md:p-3">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-md:mt-5 max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark font-londrina bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-3">
+        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
-            <div className="w-full h-fit flex justify-center items-baseline text-warmscale-5 dark:text-lightscale-3 font-extrabold gap-4">
+            <div className="w-full h-fit flex justify-center items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
               <div className="text-4xl mx-2 mb-3">Download & Share</div></div>
               <div className="flex flex-col items-center justify-center w-fit h-fit">
                 {/* Recap Card */}
@@ -1075,7 +1078,7 @@ const Recap: React.FC = () => {
                     ref={recapRef}
                     className="w-[800px] h-[800px] border-4 border-tf-orange bg-white rounded-md shadow-lg flex flex-col justify-center items-center"
                   >
-                    <div className="relative h-full w-full bg-warmscale-7 bg-topo-dark">
+                    <div className="relative h-full w-full bg-lightmode-primary bg-topo-dark">
                       <div className="w-full h-full absolute bg-black bg-opacity-50"></div>
                       <div className="line top"></div>
                       <div className="content"></div>
@@ -1174,7 +1177,7 @@ const Recap: React.FC = () => {
                 {/* Download Button */}
                 <button
                   onClick={handleDownloadImage}
-                  className="mt-6 px-4 py-2 bg-tf-orange text-warmscale-5 rounded hover:scale-110 duration-100 shadow-md"
+                  className="mt-6 px-4 py-2 bg-tf-orange text-lightmode-primary rounded hover:scale-110 duration-100 shadow-md"
                 >
                   Download Recap
                 </button>
