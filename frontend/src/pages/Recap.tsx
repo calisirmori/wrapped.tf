@@ -226,6 +226,7 @@ const Recap: React.FC = () => {
                     }_full.jpg`}
                     alt="Character"
                     className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl transform transition-transform duration-300 hover:scale-110"
+                    loading="eager"
                   />
                 </a>
               </div>
@@ -264,7 +265,7 @@ const Recap: React.FC = () => {
                   </div>
                   <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
                     <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
-                      <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="" className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
+                      <img loading="eager" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="" className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
                     </div>
                   </div>
                 </div>
@@ -307,7 +308,7 @@ const Recap: React.FC = () => {
                   </div>
                   <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
                     <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
-                      <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full flex-auto object-cover" />
+                      <img loading="eager" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full flex-auto object-cover" />
                     </div>
                   </div>
                 </div>
@@ -349,6 +350,7 @@ const Recap: React.FC = () => {
                 <div className="relative mr-2 max-md:my-2 after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-darken after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
                   <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
                     <img
+                      loading="lazy"
                       src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
                       className="h-full object-cover rounded-tl-xl rounded-br-xl"
                       alt={`${profileData?.topFiveClasses[index]?.class_name} image`}
@@ -479,6 +481,7 @@ const Recap: React.FC = () => {
                 <div className="relative mr-2 max-md:my-2 after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
                   <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
                     <img
+                      loading="lazy"
                       src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
                       className="grayscale h-full object-cover rounded-tl-xl rounded-br-xl"
                       alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
@@ -566,6 +569,7 @@ const Recap: React.FC = () => {
                 <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
+                    loading="eager"
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`}
                     className="aspect-square h-full object-cover rounded-tl-xl rounded-br-xl max-md:py-2"
                     alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} avatar`}
@@ -647,6 +651,7 @@ const Recap: React.FC = () => {
                 <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                 <div className="h-full w-fit flex items-center mr-2">
                   <img
+                    loading="lazy"
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`}
                     className="h-full aspect-square object-cover rounded-tl-xl rounded-br-xl"
                     alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name} avatar`}
@@ -756,6 +761,7 @@ const Recap: React.FC = () => {
                     <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
+                        loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                         alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name} avatar`}
@@ -830,6 +836,7 @@ const Recap: React.FC = () => {
                     <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
+                        loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                         alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name} avatar`}
@@ -924,6 +931,7 @@ const Recap: React.FC = () => {
                     <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
+                        loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                         alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name} avatar`}
@@ -998,6 +1006,7 @@ const Recap: React.FC = () => {
                     <div className="absolute bottom-0 left-2 text-lightmode-primary dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
                     <div className="h-full w-fit flex items-center mr-2">
                       <img
+                        loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
                         alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name} avatar`}
@@ -1092,7 +1101,7 @@ const Recap: React.FC = () => {
                       <div className="text bottom-left">Get yours at <span>wrapped.tf</span></div>
 
                       <div className="flex justify-center items-center absolute right-[4%] top-[5%] gap-2 bg-tf-orange p-1 rounded-sm">
-                          <img src={`https://avatars.fastly.steamstatic.com/${ id64 && profileData?.steamInfo[id64]?.avatar}_full.jpg`} alt="icon" className="card-icon" />
+                          <img loading="lazy" src={`https://avatars.fastly.steamstatic.com/${ id64 && profileData?.steamInfo[id64]?.avatar}_full.jpg`} alt="icon" className="card-icon" />
                           <span className=" font-istok text-white font-semibold">{id64 && profileData?.steamInfo[id64]?.name}</span>
                       </div>
 
@@ -1117,7 +1126,7 @@ const Recap: React.FC = () => {
                       <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
 
                       <div className="rectangle">
-                          <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
+                          <img loading="lazy" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
                       </div>
                       <div className="line map-1"></div>
                       <div className="line map-2"></div>
@@ -1160,7 +1169,7 @@ const Recap: React.FC = () => {
                       </div>
 
                       <div className="rectangle-class">
-                          <img src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="Demoman"/>
+                          <img loading="lazy" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="Demoman"/>
                       </div>
 
                       <div className="text kda">KDA</div>
