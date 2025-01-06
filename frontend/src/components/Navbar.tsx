@@ -37,18 +37,17 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <div className="navbar absolute text-warmscale-5 dark:text-lightscale-3 top-0 left-0 w-full px-5 z-50 flex items-center ">
+    <header className="navbar absolute text-warmscale-5 dark:text-lightscale-3 top-0 left-0 w-full px-5 z-50 flex items-center ">
       <div className="flex-1 ">
         <a
           href="/"
-          className="font-semibold text-xl max-md:text-base hover:text-white dark:hover:text-tf-orange hover:cursor-pointer "
-        >
+          className="font-semibold text-xl max-md:text-base hover:text-white dark:hover:text-tf-orange hover:cursor-pointer">
           wrapped.tf
           <div className="text-xs text-warmscale-1 dark:text-lightscale-7 -mt-1">by more.tf</div>
         </a>
       </div>
 
-      <div className="flex items-center space-x-3">
+      <nav aria-label="Dark Mode switch and Steam" className="flex items-center space-x-3">
         {/* Theme Toggle */}
         <ThemeToggle />
 
@@ -116,8 +115,8 @@ const Navbar: React.FC = () => {
             </a>
           )}
         </div>
-      </div>
-    </div>
+      </nav>
+    </header>
   );
 };
 

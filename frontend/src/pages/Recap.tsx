@@ -207,13 +207,13 @@ const Recap: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll">
+    <main className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll ">
       {/* Overview */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina gap-1 md:gap-2">
+        <section aria-labelledby="Overview" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina gap-1 md:gap-2">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">2024 Overview</div>
+            <h2 id="Overview" className="text-4xl mx-2">2024 Overview</h2>
             <div className="h-[2px] flex-auto bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
           <div className="w-full h-full px-4 md:px-6 lg:px-8 overflow-hidden grid xl:grid-cols-2 max-xl:grid-cold-1  xl:grid-rows-2 max-xl:grid-rows-4 p-2 xl:gap-4 max-xl:gap-2">
@@ -224,7 +224,7 @@ const Recap: React.FC = () => {
                     src={`https://avatars.fastly.steamstatic.com/${
                       id64 && profileData?.steamInfo[id64]?.avatar
                     }_full.jpg`}
-                    alt="Character"
+                    alt={`Profile picture of ${id64 && profileData.steamInfo[id64]?.name}. Click to open this user's more.tf profile.`}
                     className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl transform transition-transform duration-300 hover:scale-110"
                     loading="eager"
                   />
@@ -236,15 +236,15 @@ const Recap: React.FC = () => {
               </div>
               <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border dark:border-darkmode-border max-md:gap-2">
                 <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{profileData?.general[0].time_played ? formatNumber((profileData.general[0].time_played/60/60).toFixed(0)) : "0"}</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">HOURS</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary" aria-hidden="true">HOURS</div>
               </div>
               <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border dark:border-darkmode-border max-md:gap-2">
                 <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">WIN%</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary" aria-hidden="true">WIN%</div>
               </div>
               <div className="flex md:flex-col justify-center items-center font-black select-none border-lightmode-border dark:border-darkmode-border max-md:gap-2">
                 <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary dark:text-darkmode-tertiary">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
-                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary">KDA</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary dark:text-darkmode-primary" aria-hidden="true">KDA</div>
               </div>
             </div>
             <div className="w-full p-2 h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
@@ -265,7 +265,7 @@ const Recap: React.FC = () => {
                   </div>
                   <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
                     <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
-                      <img loading="eager" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="" className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
+                      <img loading="eager" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt={`Image of the map ${profileData?.topFiveMaps[0].map_name}`} className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
                     </div>
                   </div>
                 </div>
@@ -308,7 +308,7 @@ const Recap: React.FC = () => {
                   </div>
                   <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
                     <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
-                      <img loading="eager" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="" className="rounded-xl w-full h-full flex-auto object-cover" />
+                      <img loading="eager" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt={`Picture of ${profileData?.topFiveClasses[0].class_name} staring at the camera`} className="rounded-xl w-full h-full flex-auto object-cover" />
                     </div>
                   </div>
                 </div>
@@ -330,15 +330,15 @@ const Recap: React.FC = () => {
             </div>            
           </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Most Played Classes New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+        <section aria-labelledby="TopClasses" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">Most Played Classes</div>
+            <h2 id="TopClasses" className="text-4xl mx-2">Most Played Classes</h2>
             <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
@@ -353,7 +353,7 @@ const Recap: React.FC = () => {
                       loading="lazy"
                       src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
                       className="h-full object-cover rounded-tl-xl rounded-br-xl"
-                      alt={`${profileData?.topFiveClasses[index]?.class_name} image`}
+                      alt={`${profileData?.topFiveClasses[index]?.class_name} portrait`}
                     />
                   </div>
                 </div>
@@ -362,9 +362,9 @@ const Recap: React.FC = () => {
                   {/* Class Title */}
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start">
-                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
+                      <h3 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
                         {classes[profileData?.topFiveClasses[index].class_name].toUpperCase()}
-                      </h2>
+                      </h3>
                       <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
                         <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary ">
                           {(Number(profileData?.topFiveClasses[index].time_played) /60 /60).toFixed(1)}{" "}hrs
@@ -461,15 +461,15 @@ const Recap: React.FC = () => {
             ))}
           </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Most Played Maps New Style */}
       <div className="flex flex-col h-screen  w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-3">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+        <section aria-labelledby="TopMaps" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">Most Played Maps</div>
+            <h2 id="TopMaps" className="text-4xl mx-2">Most Played Maps</h2>
             <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
@@ -484,7 +484,7 @@ const Recap: React.FC = () => {
                       loading="lazy"
                       src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
                       className="grayscale h-full object-cover rounded-tl-xl rounded-br-xl"
-                      alt={`${profileData?.topFiveMaps[0]?.map_name} image`}
+                      alt={`${profileData?.topFiveMaps[index]?.map_name} map photo`}
                     />
                   </div>
                 </div>
@@ -492,9 +492,9 @@ const Recap: React.FC = () => {
                   {/* Map Title */}
                   <div className="w-full h-full">
                     <div className="h-full text-left flex flex-col justify-center items-start">
-                      <h2 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
+                      <h3 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary dark:text-darkmode-primary -my-1">
                         {profileData?.topFiveMaps[index].map_name.toUpperCase()}
-                      </h2>
+                      </h3>
                       <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
                         <p className="text-sm  text-lightmode-secondary dark:text-darkmode-secondary ">
                           {(Number(profileData?.topFiveMaps[index].time_played) /60 /60).toFixed(1)}{" "}hrs
@@ -550,15 +550,15 @@ const Recap: React.FC = () => {
             ))}
           </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Most Played Teammate New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+        <section aria-labelledby="TopTeammates" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">Most Played Teammates</div>
+            <h2 id="TopTeammates" className="text-4xl mx-2">Most Played Teammates</h2>
             <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
@@ -572,7 +572,7 @@ const Recap: React.FC = () => {
                     loading="eager"
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`}
                     className="aspect-square h-full object-cover rounded-tl-xl rounded-br-xl max-md:py-2"
-                    alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name} avatar`}
+                    alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}'s avatar`}
                   />
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -632,15 +632,15 @@ const Recap: React.FC = () => {
             ))}
           </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Most Played Oponents New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+        <section aria-labelledby="TopOpponents" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">Most Played Opponents</div>
+            <h2 id="TopOpponents" className="text-4xl mx-2">Most Played Opponents</h2>
             <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
 
@@ -654,7 +654,7 @@ const Recap: React.FC = () => {
                     loading="lazy"
                     src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`}
                     className="h-full aspect-square object-cover rounded-tl-xl rounded-br-xl"
-                    alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name} avatar`}
+                    alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}'s avatar`}
                   />
                 </div>
                 <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -714,15 +714,15 @@ const Recap: React.FC = () => {
             ))}
           </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Playing Trends New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+        <section aria-labelledby="Trends" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold">
-            <div className="text-4xl mx-2">Playing Trends</div>
+            <h2 id="Trends" className="text-4xl mx-2">Playing Trends</h2>
             <div className="h-[2px] flex-grow bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
           <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
@@ -733,12 +733,12 @@ const Recap: React.FC = () => {
             {profileData?.dailyActivity.length !== 0 && <div className="text-lightmode-primary dark:text-darkmode-primary">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>}
             <div className="h-[2px] w-4 flex-auto bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Best Teammates & Enemies New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+        <section aria-label="Best Winrate Players" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
@@ -764,7 +764,7 @@ const Recap: React.FC = () => {
                         loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                        alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name} avatar`}
+                        alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}'s avatar`}
                       />
                     </div>
                     <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -839,7 +839,7 @@ const Recap: React.FC = () => {
                         loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                        alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name} avatar`}
+                        alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}'s avatar`}
                       />
                     </div>
                     <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -903,12 +903,12 @@ const Recap: React.FC = () => {
           </div>
 
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
 
       {/* Worst Teammates & Enemies New Style */}
       <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+        <section aria-label="Worst Winrate Players" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
           {/* Section Header */}
           <div className="w-full h-fit flex items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
             <div className="flex w-full justify-center items-center">
@@ -934,7 +934,7 @@ const Recap: React.FC = () => {
                         loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                        alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name} avatar`}
+                        alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}'s avatar`}
                       />
                     </div>
                     <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -1009,7 +1009,7 @@ const Recap: React.FC = () => {
                         loading="lazy"
                         src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`}
                         className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
-                        alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name} avatar`}
+                        alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}'s avatar`}
                       />
                     </div>
                     <div className="grid grid-cols-4 w-full h-full gap-2">
@@ -1071,15 +1071,15 @@ const Recap: React.FC = () => {
                 </div>
             </div>
           <div className="h-[2px] w-full bg-lightmode-primary dark:bg-darkmode-primary rounded-sm"></div>
-        </div>
+        </section>
       </div>
       
       {/* Share */}
       <div className="flex flex-col h-screen w-full snap-start items-center justify-center bg-topo-light bg-cover bg-center dark:bg-topo-dark font-londrina bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-3">
-        <div className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
+        <section aria-labelledby="Share" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
             <div className="w-full h-fit flex justify-center items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
-              <div className="text-4xl mx-2 mb-3">Download & Share</div></div>
+              <div id="Share" className="text-4xl mx-2 mb-3">Download & Share</div></div>
               <div className="flex flex-col items-center justify-center w-fit h-fit">
                 {/* Recap Card */}
                 <div className=" lg:scale-[0.8] lg:-m-[80px] md:scale-[0.7] md:-m-[120px] sm:scale-[0.6] sm:-m-[160px] max-md:scale-[0.4] max-md:-m-[240px]" >
@@ -1126,7 +1126,7 @@ const Recap: React.FC = () => {
                       <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
 
                       <div className="rectangle">
-                          <img loading="lazy" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
+                          <img loading="lazy" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt={profileData?.topFiveMaps[0].map_name}/>
                       </div>
                       <div className="line map-1"></div>
                       <div className="line map-2"></div>
@@ -1169,7 +1169,7 @@ const Recap: React.FC = () => {
                       </div>
 
                       <div className="rectangle-class">
-                          <img loading="lazy" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt="Demoman"/>
+                          <img loading="lazy" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt={profileData?.topFiveClasses[0].class_name}/>
                       </div>
 
                       <div className="text kda">KDA</div>
@@ -1192,10 +1192,10 @@ const Recap: React.FC = () => {
                 </button>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
-    </div>
+    </main>
   );
 };
 
