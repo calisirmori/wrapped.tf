@@ -4,6 +4,7 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 import { Bar } from 'react-chartjs-2';
 import { toPng } from 'html-to-image';
 import "./RecapCard.css";
+import ClipboardButton from "../components/ClipboardButton";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -1079,7 +1080,7 @@ const Recap: React.FC = () => {
         <section aria-labelledby="Share" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
             <div className="w-full h-fit flex justify-center items-baseline text-lightmode-primary dark:text-darkmode-primary font-extrabold gap-4">
-              <div id="Share" className="text-4xl mx-2 mb-3">Download & Share</div></div>
+              <h2 id="Share" className="text-4xl mx-2 mb-3">Download & Share</h2></div>
               <div className="flex flex-col items-center justify-center w-fit h-fit">
                 {/* Recap Card */}
                 <div className=" lg:scale-[0.8] lg:-m-[80px] md:scale-[0.7] md:-m-[120px] sm:scale-[0.6] sm:-m-[160px] max-md:scale-[0.4] max-md:-m-[240px]" >
@@ -1183,13 +1184,20 @@ const Recap: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Download Button */}
-                <button
-                  onClick={handleDownloadImage}
-                  className="mt-6 px-4 py-2 bg-tf-orange text-lightmode-primary rounded hover:scale-110 duration-100 shadow-md"
-                >
-                  Download Recap
-                </button>
+                {/* Download Buttons */}
+                <aside aria-label="Recap image share buttons" className="flex gap-4 flex-row">
+                  <button
+                    onClick={handleDownloadImage}
+                    className="mt-6 px-4 py-2 bg-tf-orange text-lightmode-primary rounded hover:scale-110 duration-100 shadow-md">
+                    Download Recap
+                  </button>
+                  <ClipboardButton clipboardData={`A prerendered image of my personal competitive TF2 statistics for the 2024 calendar year.
+                    \nOverall, I played for ${Math.round(profileData.general[0].time_played/60).toLocaleString()} minutes. I played ${profileData.general[0].matches_played} games. I had a KDA of ${profileData.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"} and a ${((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}% win percentage.
+                    \nMy top map was ${profileData?.topFiveMaps[0].map_name}, where I played ${profileData?.topFiveMaps[0].matches_played} matches over ${(Number(profileData?.topFiveMaps[0].time_played) /60 /60).toFixed(1)} hours, and earned a win rate of ${Math.round(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses)*100)}%.
+                    \nMy top class was ${profileData?.topFiveClasses[0].class_name}, with whom I played ${profileData?.topFiveClasses[0].matches_played} matches over ${(Number(profileData?.topFiveClasses[0].time_played) /60 /60).toFixed(1)} hours, and earned a win rate of ${Math.round(profileData?.topFiveClasses[0].wins / (profileData?.topFiveClasses[0].wins + profileData?.topFiveClasses[0].losses)*100)}%.
+                    \nGet your own 2024 recap at wrapped.tf by more.tf! #TF2 #TF2Wrapped #TeamFortress`} />
+
+              </aside>
             </div>
           </div>
         </section>
