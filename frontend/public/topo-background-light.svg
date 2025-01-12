@@ -8,7 +8,7 @@
 
       .cls-1, .cls-2, .cls-3 {
         fill: none;
-        stroke:rgb(146, 141, 135);
+        stroke:#887e76;
         stroke-linecap: round;
       }
 
