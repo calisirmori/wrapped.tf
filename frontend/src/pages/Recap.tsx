@@ -1117,7 +1117,7 @@ const Recap: React.FC = () => {
                       <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
 
                       <div className="rectangle">
-                          <img src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
+                          <img className="grayscale" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt="Product"/>
                       </div>
                       <div className="line map-1"></div>
                       <div className="line map-2"></div>
