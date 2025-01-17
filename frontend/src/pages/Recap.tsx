@@ -1077,7 +1077,7 @@ const Recap: React.FC = () => {
       
       {/* Share */}
       <div className="flex flex-col h-screen w-full snap-start items-center justify-center md:p-8 max-md:p-3">
-        <section aria-labelledby="Share" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20">
+        <section aria-labelledby="Share" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20 font-londrina">
           <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
             <div className="w-full h-fit flex justify-center items-baseline text-lightmode-primary transition duration-500 dark:text-darkmode-primary font-extrabold gap-4">
               <h2 id="Share" className="text-4xl mx-2 mb-3">Download & Share</h2></div>
