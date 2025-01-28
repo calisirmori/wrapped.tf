@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
           <div className="text-xs text-warmscale-1 dark:text-lightscale-7 -mt-1">by more.tf</div>
         </a>
         <a
-          href="/preview"
+          href="/recap/preview"
           className="font-semibold text-xl max-md:text-base hover:text-darkmode-tertiary dark:hover:text-lightmode-tertiary transition duration-300 hover:cursor-pointer ml-5" >
           Test Profile
         </a>
