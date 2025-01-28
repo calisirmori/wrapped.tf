@@ -1,0 +1,1210 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { toPng } from 'html-to-image';
+import "./RecapCard.css";
+import ClipboardButton from "../components/ClipboardButton";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+const RecapPreview: React.FC = () => {
+  const id64 = '76561198105529673';
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  //Image Generation
+  const recapRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadImage = async () => {
+    if (recapRef.current) {
+      try {
+        const dataUrl = await toPng(recapRef.current, {
+          width: 800,
+          height: 800,
+          canvasWidth: 800,
+          canvasHeight: 800,
+        });
+
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "recap.png";
+        link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
+      }
+    }
+  };
+
+  const fetchProfileData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(process.env.NODE_ENV === "production" ? `https://api.wrapped.tf/profile/${id64}` : `http://localhost:5000/profile/${id64}`);
+      if (!response.ok) throw new Error("Failed to fetch profile data");
+      const data = await response.json();
+
+      // Check if data is empty
+      if (!data || Object.keys(data).length === 0) {
+        throw new Error("ID64 not found");
+      }
+
+      setProfileData(data);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const matchesPlayed = new Array(12).fill(0); // Initialize an array for all 12 months with 0
+
+  if (profileData?.activity) {
+    profileData.activity.forEach(({ month, matches_played }: any) => {
+      // Month in the data is 1-based, so adjust to 0-based index
+      const monthIndex = parseInt(month, 10) - 1;
+      matchesPlayed[monthIndex] = matches_played;
+    });
+  }
+
+  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const data = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Monthly Activity',
+        data: matchesPlayed,
+        backgroundColor: [
+          'rgba(240, 129, 73, 0.8)'
+        ],
+        borderColor: [
+          'rgba(163, 88, 50, 0.8)'
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const options: any = {
+    responsive: true,
+    maintainAspectRatio : false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        enabled: true,
+      },
+      datalabels: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const classes: Record<string, string> = {
+    scout: "Scout",
+    soldier: "Soldier",
+    pyro: "Pyro",
+    demoman: "Demoman",
+    heavyweapons: "Heavy",
+    engineer: "Engineer",
+    medic: "Medic",
+    sniper: "Sniper",
+    spy: "Spy",
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+  
+    // Array of month names
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+  
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+  
+    // Format the date
+    const formattedDate = `${months[date.getMonth()]} ${day}${suffix}`;
+    return formattedDate;
+  };
+
+  useEffect(() => {
+    if (id64) {
+      fetchProfileData();
+    }
+  }, [id64]);
+
+  // Update the tab title dynamically when profileData changes
+  useEffect(() => {
+    if (id64 && profileData?.steamInfo?.[id64]?.name) {
+      document.title = `${profileData.steamInfo[id64].name} - wrapped.tf`;
+    } else {
+      document.title = "recap - wrapped.tf";
+    }
+    return () => {
+      document.title = "Wrapped.tf"; // Reset title when unmounting
+    };
+  }, [profileData, id64]);
+
+  const formatNumber = (num: any) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "k";
+    }
+    return num.toLocaleString(); // Use locale string for smaller numbers
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center transition-colors duration-500 dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <span className="loading loading-spinner loading-sm"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center transition-colors duration-500 dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="text-error text-3xl font-londrina">{error}</div>
+        <div className="text-error text-4xl font-londrina">please try refreshing</div>
+      </div>
+    );
+  }
+
+  if (profileData?.general.length === 0) {
+    return (
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start bg-topo-light bg-cover bg-center transition-colors duration-500 dark:bg-topo-dark bg-lightmode-background dark:bg-darkmode-background md:p-8 max-md:p-2 max-md:pt-20">
+        <div className="text-error text-4xl font-londrina">NO GAMES IN 2024</div>
+        <a href="/" className="btn bg-lightmode-background transition-colors duration-500 dark:bg-darkmode-background text-lightmode-primary dark:text-darkmode-primary border-lightmode-border dark:border-darkmode-border">View Global Stats Here</a>
+      </div>
+    );
+  }
+
+  return (
+    <main className="h-screen w-screen snap-y snap-mandatory overflow-y-scroll bg-topo-light transition-colors-all duration-500 dark:bg-topo-dark bg-cover bg-center bg-lightmode-background dark:bg-darkmode-background">
+      {/* Overview */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-labelledby="Overview" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina gap-1 md:gap-2">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="Overview" className="text-4xl mx-2">2024 Overview</h2>
+            <div className="h-[2px] flex-auto bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+          <div className="w-full h-full px-4 md:px-6 lg:px-8 overflow-hidden grid xl:grid-cols-2 max-xl:grid-cold-1  xl:grid-rows-2 max-xl:grid-rows-4 p-2 xl:gap-4 max-xl:gap-2">
+          <div className="grid md:grid-cols-5 max-md:grid-rows-4 p-3 w-full xl:col-span-full max-xl:row-span-2 h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div className="flex flex-col justify-center items-center p-2 max-md:hidden">
+                <a className="w-3/4" href={`https://more.tf/profile/${profileData?.general[0].id64}`} target="_blank">
+                  <img
+                    src={`https://avatars.fastly.steamstatic.com/${
+                      id64 && profileData?.steamInfo[id64]?.avatar
+                    }_full.jpg`}
+                    alt={`Profile picture of ${id64 && profileData.steamInfo[id64]?.name}. Click to open this user's more.tf profile.`}
+                    className="max-w-1/4 max-md:w-1/4 h-auto object-contain rounded-3xl transform transition-colors-transform duration-300 hover:scale-110"
+                    loading="eager"
+                  />
+                </a>
+              </div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">{profileData?.general[0].matches_played ? formatNumber(profileData.general[0].matches_played) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary">GAMES</div>
+              </div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">{profileData?.general[0].time_played ? formatNumber((profileData.general[0].time_played/60/60).toFixed(0)) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary" aria-hidden="true">HOURS</div>
+              </div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none md:border-r-2 max-md:border-b-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary" aria-hidden="true">WIN%</div>
+              </div>
+              <div className="flex md:flex-col justify-center items-center font-black select-none border-lightmode-border transition-colors duration-500 dark:border-darkmode-border max-md:gap-2">
+                <div className="xl:text-[4.2vw] max-xl:text-[9.4vw] max-md:text-[8vw] xl:-mb-[2.3vw] max-xl:-my-[4.8vw] max-md:w-full max-md:text-right text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
+                <div className="xl:text-[2.6vw] max-xl:text-[5.4vw] max-md:text-[8vw] max-xl:-mb-[5vw] max-md:mb-0 max-md:w-full max-md:text-left text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary" aria-hidden="true">KDA</div>
+              </div>
+            </div>
+            <div className="w-full p-2 h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div className="grid xl:grid-rows-2 max-xl:grid-rows-1 max-xl:grid-cols-5 h-full w-full items-center">
+                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6  md:gap-2 max-xl:col-span-2">
+                  <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
+                    {/* TOP MAP Title */}
+                    <div className="text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">TOP MAP</div>
+                    <div className="text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveMaps[0]?.map_name?.toUpperCase() || "MAP NAME"}</div>
+                    {/* Dynamic Map Name */}
+                    <div
+                    className="text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-bold text-center leading-none md:inline max-md:hidden"
+                    style={{
+                      fontSize: `min(calc(20vw / ${profileData?.topFiveMaps[0].map_name.length || 1}), 4rem)`, // Adjust size dynamically based on text length
+                      width: "100%", // Stretches to fill available width
+                      textAlign: "center", // Ensures text remains centered
+                    }}>{profileData?.topFiveMaps[0]?.map_name?.toUpperCase() || "MAP NAME"}</div>
+                  </div>
+                  <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:transition-colors after:duration-500 after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
+                    <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:transition-colors after:duration-500 after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
+                      <img loading="eager" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt={`Image of the map ${profileData?.topFiveMaps[0].map_name}`} className="grayscale rounded-xl w-full h-full flex-auto object-cover"/>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 max-xl:col-span-3">
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">hrs</span></div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses) * 100).toFixed(0)}%</div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{profileData?.topFiveMaps[0].matches_played}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="w-full p-2 h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+              <div className="grid xl:grid-rows-2 max-xl:grid-rows-1 max-xl:grid-cols-5 h-full w-full items-center">
+                <div className="grid md:grid-cols-2 max-md:grid-rows-2 max-md:h-5/6  md:gap-2 max-xl:col-span-2">
+                <div className="flex flex-col justify-center items-center w-full h-full max-xl:order-2">
+                  {/* TOP CLASS Title */}
+                  <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary font-bold lg:-mb-2 lg:text-3xl max-lg:text-2xl max-md:hidden">
+                    TOP CLASS
+                  </div>
+                  <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-bold text-center leading-none text-3xl pr-2 md:hidden">{profileData?.topFiveClasses[0]?.class_name?.toUpperCase() || "MAP NAME"}</div>
+                  {/* Dynamic Class Name */}
+                    <div
+                    className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-bold text-center leading-none max-md:hidden "
+                    style={{
+                      fontSize: `min(calc(20vw / ${profileData?.topFiveClasses[0].class_name.length || 1}), 4rem)`, // Adjust size dynamically based on text length
+                      width: "100%", // Stretches to fill available width
+                      textAlign: "center", // Ensures text remains centered
+                    }}
+                    >
+                      {profileData?.topFiveClasses[0].class_name?.toUpperCase() || "MAP NAME"}
+                    </div>
+                  </div>
+                  <div className="relative p-2 w-full h-full flex-auto max-md:pr-2 aspect-video after:absolute after:inset-2 after:bg-lightmode-background after:mix-blend-multiply after:transition-colors after:duration-500 after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-xl">
+                    <div className="relative w-full h-full flex-auto aspect-video after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:transition-colors after:duration-500 after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-xl">
+                      <img loading="eager" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt={`Picture of ${profileData?.topFiveClasses[0].class_name} staring at the camera`} className="rounded-xl w-full h-full flex-auto object-cover" />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 max-xl:col-span-3">
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Playtime</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].time_played / 60 / 60).toFixed(0)}<span className="text-sm  text-lightmode-tertiary transition-colors duration-500 dark:text-darkmode-tertiary">hrs</span></div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">W/L Ratio</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{(profileData?.topFiveClasses[0].wins / profileData?.topFiveClasses[0].matches_played * 100).toFixed(0)}%</div>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    <div className=" text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary md:text-xl max-md:text-lg max-sm:text-base max-xs:text-sm">Matches</div>
+                    <div className=" text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary text-4xl max-md:text-[8vw]">{profileData?.topFiveClasses[0].matches_played}</div>
+                  </div>
+                </div>
+              </div>
+            </div>            
+          </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Most Played Classes New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-labelledby="TopClasses" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="TopClasses" className="text-4xl mx-2">Most Played Classes</h2>
+            <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className={`w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2`}>
+            {Array.from({ length: profileData?.topFiveClasses.length || 0 }).map((_,index:any) => (
+              <div key={index} className={`relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg`}>
+                <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50">{index+1}.</div>
+                <div className="relative mr-2 max-md:my-2 aspect-[3/4] after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-multiply after:transition-colors after:duration-500 after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
+                  <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:transition-colors after:duration-500 after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
+                    <img
+                      loading="lazy"
+                      src={`/portraits/${profileData?.topFiveClasses[index].class_name}.png`}
+                      className="h-full object-cover rounded-tl-xl rounded-br-xl"
+                      alt={`${profileData?.topFiveClasses[index]?.class_name} portrait`}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+
+                  {/* Class Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start">
+                      <h3 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1">
+                        {classes[profileData?.topFiveClasses[index].class_name].toUpperCase()}
+                      </h3>
+                      <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
+                        <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary ">
+                          {(Number(profileData?.topFiveClasses[index].time_played) /60 /60).toFixed(1)}{" "}hrs
+                        </p>
+                        <p className="text-sm max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                          {profileData?.topFiveClasses[index].matches_played} matches
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-3 max-md:grid-rows-3 col-span-3">
+                    {/* KDA */}
+                    <div className="w-full h-full flex justify-center items-center flex-wrap gap-[0.8vw]">
+                      {/* Kills */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">KDA:</div>
+                        <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">KILLS</div>
+                        <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].kills)}</span>
+                          <span className="md:hidden mx-1">/</span>
+                        </div>
+                      </div>
+
+                      {/* Deaths */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">DEATHS</div>
+                        <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].deaths)}</span>
+                          <span className="md:hidden mx-1">/</span>
+                        </div>
+                      </div>
+
+                      {/* Assists */}
+                      <div className="flex justify-center items-center md:flex-col">
+                        <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">ASSISTS</div>
+                        <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                          <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].assists)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WL index */}
+                    <div className="w-full flex flex-col justify-center items-center">
+                      <div className="flex justify-center items-center md:gap-4 xl:gap-2">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveClasses[index].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.topFiveClasses[index].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                          style={{
+                            width: `${(profileData?.topFiveClasses[index].wins / 
+                              (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData.topFiveClasses[index].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                          style={{
+                            width: `${(profileData?.topFiveClasses[index].losses / 
+                              (profileData?.topFiveClasses[index].wins + profileData?.topFiveClasses[index].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="w-full flex justify-center items-center">
+                      {/* Damage / Heals */}
+                      <div className="flex justify-center items-center md:flex-col ">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">{profileData?.topFiveClasses[index].class_name ==="medic" ? "HEALS" : "DAMAGE"}</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{profileData?.topFiveClasses[index].class_name ==="medic"? Number(profileData?.topFiveClasses[index].healing).toLocaleString(): Number(profileData?.topFiveClasses[index].damage).toLocaleString()}</span>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Most Played Maps New Style */}
+      <div className="flex flex-col h-screen  w-full snap-start items-center justify-center md:p-8 max-md:p-3">
+        <section aria-labelledby="TopMaps" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="TopMaps" className="text-4xl mx-2">Most Played Maps</h2>
+            <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className={`w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2`}>
+            {Array.from({ length: profileData?.topFiveMaps.length || 0 }).map((_,index:any) => (
+              <div key={index} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{index+1}.</div>
+                <div className="relative mr-2 max-md:my-2 max-md:aspect-[4/3] md:aspect-video after:absolute after:inset-0 after:bg-lightmode-background after:mix-blend-multiply after:transition-colors after:duration-500 after:dark:bg-darkmode-tertiary after:dark:mix-blend-multiply after:rounded-tl-xl after:rounded-br-xl">
+                  <div className="relative h-full after:absolute after:inset-0 after:bg-lightmode-tertiary after:mix-blend-screen after:transition-colors after:duration-500 after:dark:bg-darkmode-background after:dark:mix-blend-screen after:rounded-tl-xl after:rounded-br-xl">
+                    <img
+                      loading="lazy"
+                      src={`/maps/${profileData?.topFiveMaps[index].map_name}.png`}
+                      className="grayscale h-full object-cover rounded-tl-xl rounded-br-xl"
+                      alt={`${profileData?.topFiveMaps[index]?.map_name} map photo`}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Map Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start">
+                      <h3 className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1">
+                        {profileData?.topFiveMaps[index].map_name.toUpperCase()}
+                      </h3>
+                      <div className="flex max-xl:flex-col xl:flex-row xl:gap-2">
+                        <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary ">
+                          {(Number(profileData?.topFiveMaps[index].time_played) /60 /60).toFixed(1)}{" "}hrs
+                        </p>
+                        <p className="text-sm max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                          {profileData?.topFiveMaps[index].matches_played} matches
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL index */}
+                    <div className="w-full flex flex-col justify-center items-center">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveMaps[index].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.topFiveMaps[index].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.topFiveMaps[index].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                          style={{
+                            width: `${(profileData?.topFiveMaps[index].wins / 
+                              (profileData?.topFiveMaps[index].wins + profileData?.topFiveMaps[index].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData.topFiveMaps[index].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                          style={{
+                            width: `${(profileData?.topFiveMaps[index].losses / 
+                              (profileData?.topFiveMaps[index].wins + profileData?.topFiveMaps[index].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Most Played Teammate New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-labelledby="TopTeammates" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="TopTeammates" className="text-4xl mx-2">Most Played Teammates</h2>
+            <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section) => (
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    loading="eager"
+                    src={`https://avatars.fastly.steamstatic.com/${profileData?.teammates[section].teammate_id64 && profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.avatar}_full.jpg`}
+                    className="aspect-square h-full object-cover rounded-tl-xl rounded-br-xl max-md:py-2"
+                    alt={`${profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}'s avatar`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Player Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full text-left flex flex-col justify-center items-start w-full">
+                      <a className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden w-full hover:underline" href={`https://wrapped.tf/recap/${profileData?.teammates[section].teammate_id64}`} target="_blank">
+                        {profileData?.steamInfo[profileData?.teammates[section].teammate_id64]?.name}
+                      </a>
+                      <p className="text-sm max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                        {profileData?.teammates[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.teammates[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.teammates[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.teammates[section].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                          style={{
+                            width: `${(profileData?.teammates[section].wins / 
+                              (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.teammates[section].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                          style={{
+                            width: `${(profileData?.teammates[section].losses / 
+                              (profileData?.teammates[section].wins + profileData?.teammates[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Most Played Oponents New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-labelledby="TopOpponents" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="TopOpponents" className="text-4xl mx-2">Most Played Opponents</h2>
+            <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+
+          {/* Cards */}
+          <div className="w-full h-full overflow-hidden flex flex-col p-2 xl:gap-3 max-xl:gap-2">
+            {[0, 1, 2, 3, 4].map((section) => (
+              <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-4 flex-auto backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                <div className="h-full w-fit flex items-center mr-2">
+                  <img
+                    loading="lazy"
+                    src={`https://avatars.fastly.steamstatic.com/${profileData?.enemies[section].enemy_id64 && profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.avatar}_full.jpg`}
+                    className="h-full aspect-square object-cover rounded-tl-xl rounded-br-xl"
+                    alt={`${profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}'s avatar`}
+                  />
+                </div>
+                <div className="grid grid-cols-4 w-full h-full gap-2">
+                  {/* Opponent Title */}
+                  <div className="w-full h-full">
+                    <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                      <a className="md:text-3xl sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden w-full hover:underline" href={`https://wrapped.tf/recap/${profileData?.enemies[section].enemy_id64}`} target="_blank">
+                        {profileData?.steamInfo[profileData?.enemies[section].enemy_id64]?.name}
+                      </a>
+                      <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                        {profileData?.enemies[section].matches_played} matches
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex col-span-3">
+                    {/* WL Section */}
+                    <div className="w-full flex flex-col justify-center items-center">
+                      <div className="flex justify-center items-center md:gap-4">
+                        {/* Wins */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.enemies[section].wins)}</span>
+                            <span className="md:hidden mx-1">/</span>
+                          </div>
+                        </div>
+                        {/* Losses */}
+                        <div className="flex justify-center items-center md:flex-row-reverse md:gap-x-2">
+                          <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                          <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                            <span className="font-bold">{formatNumber(profileData?.enemies[section].losses)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* WL BAR */}
+                      <div className="relative h-1.5 w-full flex px-2">
+                        <div
+                          className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.enemies[section].losses > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                          style={{
+                            width: `${(profileData?.enemies[section].wins / 
+                              (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                        <div
+                          className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.enemies[section].wins > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                          style={{
+                            width: `${(profileData?.enemies[section].losses / 
+                              (profileData?.enemies[section].wins + profileData?.enemies[section].losses)) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Playing Trends New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-labelledby="Trends" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-1/2 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold">
+            <h2 id="Trends" className="text-4xl mx-2">Playing Trends</h2>
+            <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+          <div className="relative my-2 md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+            <Bar data={data} options={options} />
+          </div>
+          <div className="w-full h-fit flex text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold gap-2 items-center">
+            <div className="h-[2px] w-4 flex-auto bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+            {profileData?.dailyActivity.length !== 0 && <div className="text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary">On {profileData?.dailyActivity[0].day ? formatDate(profileData.dailyActivity[0].day) : "No date available"}, you played {profileData?.dailyActivity[0].matches_played} games, making it your busiest day.</div>}
+            <div className="h-[2px] w-4 flex-auto bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+          </div>
+        </section>
+      </div>
+
+      {/* Best Teammates & Enemies New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-label="Best Winrate Players" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold gap-4">
+            <div className="flex w-full justify-center items-center">
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+              <div className="text-4xl mx-2">Best Winrate With</div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+            </div>
+            <div className="flex w-full justify-center items-center max-md:hidden">
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+              <div className="text-4xl mx-2">Best Winrate Against</div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+            </div>
+          </div>
+
+          <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
+              {/* Teammates */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-lightmode-primary transition-colors duration-500 dark:border-darkmode-primary">
+                {[0, 1, 2].map((section) => (
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        loading="lazy"
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.winningTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}'s avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Player Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.winningTeammates[section].teammate_id64}`} target="_blank">
+                            {profileData?.steamInfo[profileData?.winningTeammates[section].teammate_id64]?.name}
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                            {profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningTeammates[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.winningTeammates[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                              style={{
+                                width: `${(profileData?.winningTeammates[section].matches_won / 
+                                  (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.winningTeammates[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                              style={{
+                                width: `${(profileData?.winningTeammates[section].matches_lost / 
+                                  (profileData?.winningTeammates[section].matches_won + profileData?.winningTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                <div>
+                  <div className="flex w-full justify-center items-center md:hidden text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary">
+                    <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+                    <div className="text-4xl mx-2">Best Winrate Against</div>
+                    <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+                  </div>
+                  {/* Enemies */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
+                {[0, 1, 2].map((section) => (
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        loading="lazy"
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.winningEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}'s avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.winningEnemies[section].enemy_id64}`} target="_blank">
+                            {profileData?.steamInfo[profileData?.winningEnemies[section].enemy_id64]?.name}
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                            {profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.winningEnemies[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.winningEnemies[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                              style={{
+                                width: `${(profileData?.winningEnemies[section].matches_won / 
+                                  (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.winningEnemies[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                              style={{
+                                width: `${(profileData?.winningEnemies[section].matches_lost / 
+                                  (profileData?.winningEnemies[section].matches_won + profileData?.winningEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                </div>
+              
+          </div>
+
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+
+      {/* Worst Teammates & Enemies New Style */}
+      <div className="flex flex-col h-screen w-full snap-start items-center md:justify-center max-md:justify-start md:p-8 max-md:p-2 max-md:pt-20">
+        <section aria-label="Worst Winrate Players" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 font-londrina">
+          {/* Section Header */}
+          <div className="w-full h-fit flex items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold gap-4">
+            <div className="flex w-full justify-center items-center">
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+              <div className="text-4xl mx-2">Worst Winrate With</div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+            </div>
+            <div className="flex w-full justify-center items-center max-md:hidden">
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+              <div className="text-4xl mx-2">Worst Winrate Against</div>
+              <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+            </div>
+          </div>
+
+            <div className="w-full h-full grid md:grid-cols-2 max-md:grid-rows-2 p-2">
+              {/* Teammates */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2 md:border-r-2 border-lightmode-primary transition-colors duration-500 dark:border-darkmode-primary">
+                {[0, 1, 2].map((section) => (
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        loading="lazy"
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.losingTeammates[section].teammate_id64 && profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}'s avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.losingTeammates[section].teammate_id64}`} target="_blank">
+                            {profileData?.steamInfo[profileData?.losingTeammates[section].teammate_id64]?.name}
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                            {profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingTeammates[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.losingTeammates[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                              style={{
+                                width: `${(profileData?.losingTeammates[section].matches_won / 
+                                  (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.losingTeammates[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                              style={{
+                                width: `${(profileData?.losingTeammates[section].matches_lost / 
+                                  (profileData?.losingTeammates[section].matches_won + profileData?.losingTeammates[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                <div>
+                  <div className="flex w-full justify-center items-center md:hidden text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary">
+                    <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+                    <div className="text-4xl mx-2">Worst Winrate Against</div>
+                    <div className="h-[2px] flex-grow bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+                  </div>
+                  {/* Enemies */}
+              <div className="w-full h-full overflow-hidden grid grid-rows-3 p-2 xl:gap-3 max-xl:gap-2">
+                {[0, 1, 2].map((section) => (
+                  <div key={section} className="relative md:p-3 max-md:px-2 flex w-full h-full backdrop-blur border-2 border-lightmode-border transition-colors duration-500 dark:border-darkmode-border rounded-tl-3xl rounded-br-3xl rounded-tr-lg rounded-bl-lg">
+                    <div className="absolute bottom-0 left-2 text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary opacity-50 ">{section+1}.</div>
+                    <div className="h-full w-fit flex items-center mr-2">
+                      <img
+                        loading="lazy"
+                        src={`https://avatars.fastly.steamstatic.com/${profileData?.losingEnemies[section].enemy_id64 && profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.avatar}_full.jpg`}
+                        className=" xl:h-[7vh] lg:h-[10.5vh] max-lg:h-[10vh] object-cover rounded-tl-xl rounded-br-xl"
+                        alt={`${profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}'s avatar`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 w-full h-full gap-2">
+                      {/* Map Title */}
+                      <div className="w-full h-full">
+                        <div className="h-full w-full text-left flex flex-col justify-center items-start">
+                          <a className="md:text-3xl w-full sm:text-2xl max-sm:text-lg font-semibold text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary -my-1 truncate overflow-hidden hover:underline" href={`https://wrapped.tf/recap/${profileData?.losingEnemies[section].enemy_id64}`} target="_blank">
+                            {profileData?.steamInfo[profileData?.losingEnemies[section].enemy_id64]?.name}
+                          </a>
+                          <p className="text-sm  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary">
+                            {profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost} matches
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex col-span-3">
+                        {/* WL Section */}
+                        <div className="w-full flex flex-col justify-center items-center">
+                          <div className="flex justify-center items-center md:gap-4">
+                            {/* Wins */}
+                            <div className="flex justify-center items-center md:flex-col ">
+                              <div className="mr-2 md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1.3vw] max-md:text-sm max-xl:text-[2.8vw]">W/L:</div>
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">WINS</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_won)}</span>
+                                <span className="md:hidden mx-1">/</span>
+                              </div>
+                            </div>
+                            {/* Losses */}
+                            <div className="flex justify-center items-center md:flex-col">
+                              <div className="max-md:hidden  text-lightmode-secondary transition-colors duration-500 dark:text-darkmode-secondary xl:text-[1vw] max-xl:text-[2vw]">LOSSES</div>
+                              <div className="flex items-center text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary xl:text-[1.3vw] max-xl:text-[2.8vw] max-md:text-sm md:-mt-[0.5vw]">
+                                <span className="font-bold">{formatNumber(profileData?.losingEnemies[section].matches_lost)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* WL BAR */}
+                          <div className="relative h-1.5 w-full flex px-2">
+                            <div
+                              className={`bg-green-600 opacity-80 h-full rounded-l-full ${profileData?.losingEnemies[section].matches_lost > 0 ? 'rounded-r-none' : 'rounded-r-full'}`}
+                              style={{
+                                width: `${(profileData?.losingEnemies[section].matches_won / 
+                                  (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                            <div
+                              className={`bg-red-600 opacity-80 h-full rounded-r-full ${profileData?.losingEnemies[section].matches_won > 0 ? 'rounded-l-none' : 'rounded-l-full'}`}
+                              style={{
+                                width: `${(profileData?.losingEnemies[section].matches_lost / 
+                                  (profileData?.losingEnemies[section].matches_won + profileData?.losingEnemies[section].matches_lost)) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+                </div>
+            </div>
+          <div className="h-[2px] w-full bg-lightmode-primary transition-colors duration-500 dark:bg-darkmode-primary rounded-sm"></div>
+        </section>
+      </div>
+      
+      {/* Share */}
+      <div className="flex flex-col h-screen w-full snap-start items-center justify-center md:p-8 max-md:p-3">
+        <section aria-labelledby="Share" className="max-xl:h-[70vh] max-h-full flex flex-col justify-center items-center  max-xl:w-full xl:w-2/3 xl:h-4/6 max-md:mb-20 font-londrina">
+          <div className="w-full h-full md:h-1/2 md:w-1/2 flex flex-col justify-center items-center p-2">
+            <div className="w-full h-fit flex justify-center items-baseline text-lightmode-primary transition-colors duration-500 dark:text-darkmode-primary font-extrabold gap-4">
+              <h2 id="Share" className="text-4xl mx-2 mb-3">Download & Share</h2></div>
+              <div className="flex flex-col items-center justify-center w-fit h-fit">
+                {/* Recap Card */}
+                <div className=" lg:scale-[0.8] lg:-m-[80px] md:scale-[0.7] md:-m-[120px] sm:scale-[0.6] sm:-m-[160px] max-md:scale-[0.4] max-md:-m-[240px]" >
+                  <div
+                    ref={recapRef}
+                    className="w-[800px] h-[800px] border-4 border-tf-orange bg-white rounded-md shadow-lg flex flex-col justify-center items-center"
+                  >
+                    <div className="relative h-full w-full bg-lightmode-primary bg-topo-dark">
+                      <div className="w-full h-full absolute bg-black bg-opacity-50"></div>
+                      <div className="line top"></div>
+                      <div className="content"></div>
+                      <div className="line bottom"></div>
+
+                      <div className="moretf-logo"></div>
+                      <div className="text tf2wrapped">#TF2Wrapped</div>
+                      <div className="text tf2wrapped-small-text">My 2024 more.tf wrapped</div>
+
+                      <div className="line bottom-left"></div>
+                      <div className="text bottom-left">Get yours at <span>wrapped.tf</span></div>
+
+                      <div className="flex justify-center items-center absolute right-[4%] top-[5%] gap-2 bg-tf-orange p-1 rounded-sm">
+                          <img loading="lazy" src={`https://avatars.fastly.steamstatic.com/${ id64 && profileData?.steamInfo[id64]?.avatar}_full.jpg`} alt="icon" className="card-icon" />
+                          <span className=" font-istok text-white font-semibold">{id64 && profileData?.steamInfo[id64]?.name}</span>
+                      </div>
+
+                      <div className="text minutes-played-header">MINUTES PLAYED</div>
+                      <div className="text that-is">THAT'S:</div>
+                      <div className="text key-insights">KEY INSIGHTS</div>
+
+                      <div className="text minutes-played">{Math.round(profileData?.general[0].time_played/60).toLocaleString()}</div>
+                      <div className="text movies-missed">movies missed</div>
+                      <div className="card movies-missed">{Math.round(profileData?.general[0].time_played/60/90).toLocaleString()}</div>
+
+                      <div className="text hours-played">total hours</div>
+                      <div className="card hours-played">{Math.round(profileData?.general[0].time_played/60/60).toLocaleString()}</div>
+
+                      <div className="text top-map-header">TOP MAP</div>
+                      <div className="text-tf-orange absolute right-[4%] top-[41%] w-[300px]" style={{
+                        fontSize: `min(calc(600px / ${profileData?.topFiveMaps[0].map_name.length || 1}), 70px)`,
+                        textAlign: "right", // Ensures text remains centered
+                      }}>{profileData?.topFiveMaps[0].map_name.toUpperCase()}</div>
+
+                      <div className="text top-class-header">TOP CLASS</div>
+                      <div className="text top-class">{profileData?.topFiveClasses[0].class_name.toUpperCase()}</div>
+
+                      <div className="rectangle">
+                          <img className="grayscale" loading="lazy" src={`/maps/${profileData?.topFiveMaps[0].map_name}.png`} alt={profileData?.topFiveMaps[0].map_name}/>
+                      </div>
+                      <div className="line map-1"></div>
+                      <div className="line map-2"></div>
+                      <div className="line map-3"></div>
+
+                      <div className="stat map-1">
+                          <div className="value">{(Number(profileData?.topFiveMaps[0].time_played) /60 /60).toFixed(1)}{" "}hrs</div>
+                          <div className="textbox">Playtime</div>
+                      </div>
+
+                      <div className="stat map-2">
+                          <div className="value">{Math.round(profileData?.topFiveMaps[0].wins / 
+                                (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses)*100)}%</div>
+                          <div className="textbox">W/L Ratio</div>
+                      </div>
+
+                      <div className="stat map-3">
+                          <div className="value">{profileData?.topFiveMaps[0].matches_played}</div>
+                          <div className="textbox">Matches</div>
+                      </div>
+
+                      <div className="line class-1"></div>
+                      <div className="line class-2"></div>
+                      <div className="line class-3"></div>
+
+                      <div className="stat class-1">
+                          <div className="textbox">Playtime</div>
+                          <div className="value">{(Number(profileData?.topFiveClasses[0].time_played) /60 /60).toFixed(1)}{" "}hrs</div>
+                      </div>
+
+                      <div className="stat class-2">
+                          <div className="textbox">W/L Ratio</div>
+                          <div className="value">{Math.round(profileData?.topFiveClasses[0].wins / 
+                                (profileData?.topFiveClasses[0].wins + profileData?.topFiveClasses[0].losses)*100)}%</div>
+                      </div>
+
+                      <div className="stat class-3">
+                          <div className="textbox">Matches</div>
+                          <div className="value">{profileData?.topFiveClasses[0].matches_played}</div>
+                      </div>
+
+                      <div className="rectangle-class">
+                          <img loading="lazy" src={`/classes/${profileData?.topFiveClasses[0].class_name}.png`} alt={profileData?.topFiveClasses[0].class_name}/>
+                      </div>
+
+                      <div className="text kda">KDA</div>
+                      <div className="text kda-value">{profileData?.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"}</div>
+                      <div className="text win-percent">WIN %</div>
+                      <div className="text win-percent-value">{((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}%</div>
+
+                      <div className="text games">GAMES</div>
+                      <div className="text games-value">{profileData.general[0].matches_played}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Download Buttons */}
+                <aside aria-label="Recap image share buttons" className="flex gap-4 flex-row">
+                  <button
+                    onClick={handleDownloadImage}
+                    className="mt-6 px-4 py-2 bg-tf-orange text-lightmode-primary rounded hover:scale-110 duration-100 shadow-md">
+                    Download Recap
+                  </button>
+                  <ClipboardButton clipboardData={`A prerendered image of my personal competitive TF2 statistics for the 2024 calendar year.
+                    \nOverall, I played for ${Math.round(profileData.general[0].time_played/60).toLocaleString()} minutes. I played ${profileData.general[0].matches_played} games. I had a KDA of ${profileData.general[0].kills ? ((profileData.general[0].kills + profileData.general[0].assists) / profileData.general[0].deaths).toFixed(1) : "0"} and a ${((profileData.general[0].matches_won/profileData.general[0].matches_played)*100).toFixed(0)}% win percentage.
+                    \nMy top map was ${profileData?.topFiveMaps[0].map_name}, where I played ${profileData?.topFiveMaps[0].matches_played} matches over ${(Number(profileData?.topFiveMaps[0].time_played) /60 /60).toFixed(1)} hours, and earned a win rate of ${Math.round(profileData?.topFiveMaps[0].wins / (profileData?.topFiveMaps[0].wins + profileData?.topFiveMaps[0].losses)*100)}%.
+                    \nMy top class was ${profileData?.topFiveClasses[0].class_name}, with whom I played ${profileData?.topFiveClasses[0].matches_played} matches over ${(Number(profileData?.topFiveClasses[0].time_played) /60 /60).toFixed(1)} hours, and earned a win rate of ${Math.round(profileData?.topFiveClasses[0].wins / (profileData?.topFiveClasses[0].wins + profileData?.topFiveClasses[0].losses)*100)}%.
+                    \nGet your own 2024 recap at wrapped.tf by more.tf! #TF2 #TF2Wrapped #TeamFortress`} />
+
+              </aside>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  );
+};
+
+export default RecapPreview;
